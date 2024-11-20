@@ -1,7 +1,6 @@
 from enum import Enum
 from pathlib import Path
 import re
-from typing import List
 from PyQt5 import QtCore, uic
 from PyQt5.QtCore import QSize,Qt,pyqtSignal
 from PyQt5.QtWidgets import (QDialog,QGroupBox,QFrame,QVBoxLayout, QSizePolicy,QHBoxLayout,QWidget,
@@ -14,6 +13,7 @@ from qfluentwidgets import (LineEdit,Dialog,BodyLabel,ToolButton,Action, Command
                             PlainTextEdit,TextEditMenu,DropDownPushButton,SwitchButton)
 from qfluentwidgets import FluentIcon as FIF
 from jsonEditor import JSONHandler
+from EditorMain import Window
 
 
 current_path = Path(__file__)
@@ -212,7 +212,6 @@ def replace_placeholders(text, values=None):
         
     return text.format_map(values)
 
-
 class ConfirmDialog(Dialog):
     def __init__(self,title,content):
         super().__init__(title=title,content=content)
@@ -220,7 +219,7 @@ class ConfirmDialog(Dialog):
         self.contentLabel.setStyleSheet( " font-family: '微软雅黑'; font-size: 12pt; ")
 
 class EditMenu:
-
+    """ right click menu for text edition"""
     def __init__(self):
         self.textEdit = RoundMenu("文字", self)
         self.textEdit.setIcon(FIF.EDIT)
@@ -298,9 +297,8 @@ class EditMenu:
         self.setText(new_text)
         self.setCursorPosition(cursor_pos + len(insert_text))
 
-    
 class EditorLineEdit(LineEdit,EditMenu):
-
+    """line edit with edit menu"""
     textUpdated = pyqtSignal(str)
     unchanged = pyqtSignal()
     changed = pyqtSignal()
@@ -347,7 +345,7 @@ class EditorLineEdit(LineEdit,EditMenu):
         menu.exec_(event.globalPos())
 
 class EditorPlainTextEdit(PlainTextEdit,EditMenu):
-
+    """plain text edit with edit menu"""
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -386,9 +384,8 @@ class EditorPlainTextEdit(PlainTextEdit,EditMenu):
     def cursorPosition(self)->int:
         return self.textCursor().position()
 
-
-
 class DropDownLineEditButton(DropDownButtonBase,LineEditButton):
+    """ button in line edit with drop down menu """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -432,7 +429,7 @@ class MultiFuncButton(DropDownLineEditButton):
             Action(FIF.ADD, "其他")
         ])
 
-    def addActions(self,actions:List[Action]):
+    def addActions(self,actions:list[Action]):
         [self.addAction(action) for action in actions]
 
     def addAction(self,action:Action):
@@ -656,7 +653,7 @@ class DragDropWindow(QFrame):
 
     fileDropped = pyqtSignal(str)
 
-    def __init__(self, text:str, file:str,parent=None):
+    def __init__(self, text:str, file:str,parent:Window):
         super().__init__(parent=parent)
         uic.loadUi(file, self)
         self.setObjectName(text.replace(' ', '-'))
@@ -727,7 +724,7 @@ class DragDropWindow(QFrame):
             self.fileDropped.emit(files[0])
 
 class BadgeButton(QWidget):
-
+    """button with badge"""
     def __init__(self):
         super().__init__()
         # setTheme(Theme.DARK)
@@ -856,7 +853,7 @@ class ConditionBox(QFrame):
 
 class EditInterface(QFrame):
 
-    def __init__(self, text: str,parent=None):
+    def __init__(self, text: str,parent:Window):
         super().__init__(parent=parent)
         self.setObjectName(text.replace(' ', '-'))
         # self.setupUi(self)
@@ -900,24 +897,20 @@ class EditInterface(QFrame):
             Action(FIF.SAVE_AS, '另存为', triggered=parent.save_file_as,shortcut='Ctrl+Shift+S'),
             Action(FIF.COPY, '保存启动备份', triggered=parent.save_backup)
             ])
-        # commandBar.addHiddenAction(Action(FIF.SETTING, '设置', shortcut='Ctrl+S'))
 
 
         # region Initialization
         self.itemComboBox.currentIndexChanged.connect(self.change_item)
-        # self.itemLineEdit.clicked.connect(self.new_item)
         self.itemLineEdit.clicked.connect(self.create_item)
         self.catalogComboBox.currentIndexChanged.connect(self.change_catalog)
         self.catalogLineEdit.clicked.connect(self.create_catalog)
 
-        # self.newItemButton.clicked.connect(self.new_item)
-        # self.newItemButton.setIcon(FIF.ADD.icon())
         self.saveItemButton.clicked.connect(self.save_item)
         self.saveItemButton.clicked.connect(parent.save_any_complete)
         self.saveItemButton.setIcon(FIF.SAVE.icon())
         self.badge = IconInfoBadge.attension(FIF.SYNC, self.saveBox, target=self.saveItemButton, position=InfoBadgePosition.TOP_RIGHT)
         self.badge.hide()
-        # self.saveItemButton.clicked.connect(self.badge.hide)
+
         self.resetItemButton.clicked.connect(self.reset_item)
         self.resetItemButton.setIcon(FIF.SYNC.icon())
         self.nextItemButton.clicked.connect(self.next_item)
@@ -1233,22 +1226,20 @@ class EditInterface(QFrame):
                 self.save_item()
     # endregion
 
-
-
 class DialogInterface(QFrame):
-    def __init__(self,text:str,parent)->None:
+    def __init__(self,text:str,parent:Window):
         super().__init__(parent=parent)
         uic.loadUi(parent_dir + "/UI/DialogInterface.ui", self)
         self.setObjectName(text.replace(' ', '-'))
         self.setEnabled(False)
         # variable init
-        self.file = None
-        self.dialog = None
+        self.file:JSONHandler = None
+        self.dialog:dict = None
         self.dialogID = '0'
-        self.option = None
+        self.option:dict = None
         self.dialog_unsaved = False
         self.option_unsaved = False
-        self.currentInfoBar = None
+        self.currentInfoBar:InfoBar = None
         self.settings = parent.settings
         self.placeholders = self.settings.data['placeholders']['names']
         self.previous_text = ''
@@ -1276,6 +1267,7 @@ class DialogInterface(QFrame):
             Action(FIF.RETURN, '保存启动备份', triggered=parent.save_backup)
             ])
         
+        # auto save button
         self.switchButton = SwitchButton(self.menuBox)
         self.menu.addWidget(self.switchButton)
         self.switchButton.setOffText("自动保存关闭")
@@ -1350,16 +1342,10 @@ class DialogInterface(QFrame):
 
         self.startBox.currentIndexChanged.connect(self.jump_to_dialog)
 
-        # self.addConditionButton.clicked.connect(self.add_condition)
-        
     def load_file(self):
         """加载文件到显示区"""
         data = self.file.data
         self.file_saved()
-
-        # self.conditionBox = ConditionBox(self)
-        # self.conditionForm.layout().addRow(self.conditionBox)
-        
 
         self.connect_combobox(False)
         self.dialogComboBox.clear()

@@ -14,7 +14,7 @@ class JSONHandler:
         if self.data:
             self.backup = self.data.copy()
 
-    def load_json(self):
+    def load_json(self)->dict:
         """
         读取JSON文件内容并加载到字典中。如果文件不存在，则返回空字典。
         """
@@ -29,9 +29,10 @@ class JSONHandler:
             print(self.path+" 文件不存在，创建空数据。")
             return {}
     
-    def save_json(self, path):
+    def save_json(self, path)->bool:
         """
-        将字典内容写入JSON文件，保存更改。
+        将字典内容写入JSON文件，保存更改，返回True。
+        保存失败返回False
         """
         try:
             # 尝试将数据序列化为 JSON 字符串
@@ -42,6 +43,7 @@ class JSONHandler:
         
         with open(path, 'w', encoding='utf-8') as f:
             json.dump(self.data, f, ensure_ascii=False, indent=4)
+        return True
     def save_backup(self,path):
         """
         将备份内容写入JSON文件
