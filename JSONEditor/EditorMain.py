@@ -231,9 +231,6 @@ if __name__ == '__main__':
     font_db = QFontDatabase()
     font_id = font_db.addApplicationFont(parent_dir + "/fonts/VonwaonBitmap-16px.ttf")
     font_family = font_db.applicationFontFamilies(font_id)[0]
-    # print(font_family)
-    # app.setStyleSheet(f"QWidget,QMenu {{ font-family: '{font_family}'; }}")
-    # app.setFont(QFont("VonwaonBitmap 16px"))
     w = Window()
     w.show()
     app.exec()
