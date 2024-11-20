@@ -13,7 +13,6 @@ from qfluentwidgets import (LineEdit,Dialog,BodyLabel,ToolButton,Action, Command
                             PlainTextEdit,TextEditMenu,DropDownPushButton,SwitchButton)
 from qfluentwidgets import FluentIcon as FIF
 from jsonEditor import JSONHandler
-from EditorMain import Window
 
 
 current_path = Path(__file__)
@@ -653,7 +652,7 @@ class DragDropWindow(QFrame):
 
     fileDropped = pyqtSignal(str)
 
-    def __init__(self, text:str, file:str,parent:Window):
+    def __init__(self, text:str, file:str,parent:QWidget):
         super().__init__(parent=parent)
         uic.loadUi(file, self)
         self.setObjectName(text.replace(' ', '-'))
@@ -853,7 +852,7 @@ class ConditionBox(QFrame):
 
 class EditInterface(QFrame):
 
-    def __init__(self, text: str,parent:Window):
+    def __init__(self, text: str,parent:QWidget):
         super().__init__(parent=parent)
         self.setObjectName(text.replace(' ', '-'))
         # self.setupUi(self)
@@ -1227,7 +1226,7 @@ class EditInterface(QFrame):
     # endregion
 
 class DialogInterface(QFrame):
-    def __init__(self,text:str,parent:Window):
+    def __init__(self,text:str,parent:QWidget):
         super().__init__(parent=parent)
         uic.loadUi(parent_dir + "/UI/DialogInterface.ui", self)
         self.setObjectName(text.replace(' ', '-'))
