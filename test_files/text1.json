@@ -1,0 +1,309 @@
+{
+    "ui": {
+        "mainMenu": {
+            "title": "Main Menu",
+            "startButton": "Start Game",
+            "settingsButton": "Settings",
+            "exitButton": "Exit"
+        },
+        "settingsMenu": {
+            "title": "Settings",
+            "audio": "Audio Settings",
+            "video": "Video Settings",
+            "controls": "Control Settings",
+            "backButton": "Back to Main Menu"
+        },
+        "buttons": {
+            "confirm": "确认",
+            "cancel": "取消",
+            "start": "开始",
+            "break": "突破",
+            "interrupt": "拦截",
+            "last page": "<",
+            "next page": ">",
+            "pause": "暂停",
+            "reset": "重置",
+            "switch weapon": "切换武器"
+        },
+        "tooltip": {
+            "last page": "上一页",
+            "next page": "下一页",
+            "from buffs": "来自增益",
+            "break": "发生冲突时，尝试继续前进 \\n成功时维持当前路线",
+            "interrupt": "发生冲突时，停止移动并尝试拦截 \\n成功时对目标使用武器攻击",
+            "reset": "重置当前游戏"
+        }
+    },
+    "notifications": {
+        "levelUp": {
+            "title": "Level Up!",
+            "message": "Congratulations! You've reached level {level}.",
+            "button": "Continue"
+        },
+        "newQuest": {
+            "title": "New Quest Available",
+            "message": "You have a new quest: {questName}. Check your quest log for details."
+        }
+    },
+    "errors": {
+        "network": {
+            "connectionLost": "Network connection lost. Please check your connection.",
+            "timeout": "The connection has timed out. Please try again later."
+        },
+        "game": {
+            "saveFailed": "Failed to save the game. Please try again.",
+            "loadFailed": "Failed to load the game. The save file may be corrupted."
+        }
+    },
+    "achievements": {
+        "firstKill": {
+            "title": "First Blood",
+            "description": "Defeat your first enemy in battle."
+        },
+        "collector": {
+            "title": "Collector",
+            "description": "Collect {itemCount} unique items."
+        }
+    },
+    "log": {
+        "turn": {
+            "count": "第{count}回合",
+            "timestep": "时间步{timestep}",
+            "stop": "{unit}停止前进",
+            "back": "{unit}被迫后退",
+            "continue": "{unit}继续前进",
+            "sequence start": "同优先级序列开始",
+            "sequence finish": "同优先级序列结束",
+            "defeat": "失败",
+            "victory": "胜利"
+        },
+        "hp": {
+            "remains": "{unit}剩余{hp}点生命值",
+            "defeat": "{unit}被击败了"
+        },
+        "damage": {
+            "apply": "{source}对{target}施加了{damage}点{damageType}伤害",
+            "take": "{target}受到了{multi}倍{damageType}伤害，失去{damage}生命值",
+            "reduced": "{target}的防御力将即将到来的{damageType}伤害减少至{damage}"
+        },
+        "attack": {
+            "miss": "{source}的攻击没有命中{target}！",
+            "duel": "{source}和{target}之间发生了对决！",
+            "out of reach": "{source}的目标不在{dist}格的攻击距离之内",
+            "no target": "{source}尝试攻击，但是范围内没有敌人",
+            "try attack": "{source}的路径被打断了，但是仍然尝试攻击"
+        },
+        "defend": {
+            "defending": "{target}尝试防御来自{source}的{damageType}伤害",
+            "front": "{target}从正面防御",
+            "reduced": "{target}减少了来自{source}的{damageType}伤害",
+            "failed": "{target}没能防住"
+        },
+        "skill": {
+            "execute": "{source}使用技能{skill}",
+            "interrupted": "{source}的技能被打断了，没能生效",
+            "cooldown": "{skill}进入冷却，剩余{time}回合",
+            "try use": "{source}的路径被打断了，但是仍然尝试行动"
+        },
+        "test": {
+            "activate": "message loaded"
+        },
+        "buff": {
+            "get": "{unit}获得了增益{buff},持续{time}回合",
+            "lose": "{unit}失去了增益{buff}",
+            "extend": "{unit}的增益{buff}延长至{time}回合"
+        }
+    },
+    "skills": {
+        "Move": {
+            "name": "移动",
+            "description": "移动至选中的位置，不一定能到达",
+            "tip": "none"
+        },
+        "Weapon Attack (Range)": {
+            "name": "武器攻击（范围）",
+            "description": "使用武器攻击特定区域，并期望有敌人会正好走进来",
+            "tip": "weapon"
+        },
+        "Weapon Attack (Target)": {
+            "name": "武器攻击（锁定）",
+            "description": "使用武器攻击目标敌人，前提是打得到",
+            "tip": "weapon target"
+        },
+        "Weapon Defend": {
+            "name": "武器防御",
+            "description": "使用武器进行防御，你的拳头当然也能防御",
+            "tip": "weapon defend"
+        },
+        "Weapon Charged Attack": {
+            "name": "武器蓄力攻击",
+            "description": "使用武器进行蓄力攻击，能发挥武器的两倍伤害，也能少移动一倍的距离",
+            "tip": "weapon charge"
+        }
+    },
+    "tips": {
+        "target": {
+            "tip": "将尝试往目标方向移动",
+            "format": "bold"
+        },
+        "defend": {
+            "tip": "进一步减少来自正面的伤害",
+            "format": "bold"
+        },
+        "charge": {
+            "tip": "如果蓄力时受到伤害，则无法使出",
+            "format": "bold"
+        },
+        "weapon": {
+            "tip": "使用武器,若成功使出则消耗武器耐久度",
+            "format": "bold"
+        }
+    },
+    "terms": {
+        "general": {
+            "view": "视野"
+        },
+        "weapon": {
+            "name": "名称",
+            "good status": "状态良好",
+            "need repair": "需要维护",
+            "broken": "已损坏"
+        },
+        "Hit": {
+            "name": "打击",
+            "description": ""
+        },
+        "Pierce": {
+            "name": "穿刺",
+            "description": ""
+        },
+        "Slash": {
+            "name": "劈斩",
+            "description": ""
+        },
+        "Fire": {
+            "name": "火焰",
+            "description": "特殊伤害"
+        },
+        "Ice": {
+            "name": "冰冻",
+            "description": "特殊伤害"
+        },
+        "Lightning": {
+            "name": "闪电",
+            "description": "特殊伤害"
+        },
+        "None": {
+            "name": "无属性",
+            "description": "无法被防御"
+        }
+    },
+    "battleStats": {
+        "Name": {
+            "name": "名字",
+            "tooltip": "",
+            "description": ""
+        },
+        "HP": {
+            "name": "生命值",
+            "tooltip": "",
+            "description": ""
+        },
+        "HPMAX": {
+            "name": "生命值上限",
+            "tooltip": "",
+            "description": ""
+        },
+        "ATK": {
+            "name": "攻击力",
+            "tooltip": "造成的普通伤害加值",
+            "description": ""
+        },
+        "DEF": {
+            "name": "防御力",
+            "tooltip": "减少受到的普通伤害值",
+            "description": ""
+        },
+        "STB": {
+            "name": "定力",
+            "tooltip": "保持自己移动路线的能力",
+            "description": ""
+        },
+        "SPD": {
+            "name": "速度",
+            "tooltip": "每回合的移动距离上限",
+            "description": ""
+        },
+        "ACU": {
+            "name": "命中",
+            "tooltip": "攻击命中加值",
+            "description": ""
+        },
+        "DGD": {
+            "name": "闪避",
+            "tooltip": "受击闪避加值",
+            "description": ""
+        },
+        "VIEW": {
+            "name": "正面视野",
+            "tooltip": "",
+            "description": ""
+        },
+        "VIEWS": {
+            "name": "周围视野",
+            "tooltip": "",
+            "description": ""
+        },
+        "HTE": {
+            "name": "嘲讽",
+            "tooltip": "容易被敌人攻击的程度",
+            "description": ""
+        },
+        "buff": {
+            "name": "增益",
+            "tooltip": "",
+            "description": ""
+        }
+    },
+    "weaponStatus": {
+        "damage": {
+            "name": "伤害",
+            "description": "",
+            "tooltip": "武器的基础伤害"
+        },
+        "block": {
+            "name": "格挡",
+            "description": "",
+            "tooltip": "使用武器防御时能够减少的伤害"
+        },
+        "reach": {
+            "name": "攻击距离",
+            "description": "",
+            "tooltip": "武器的攻击距离"
+        },
+        "dur": {
+            "name": "耐久值",
+            "description": "",
+            "tooltip": "武器的耐久度"
+        },
+        "durmax": {
+            "name": "耐久值上限",
+            "description": "",
+            "tooltip": "武器的耐久度上限"
+        }
+    },
+    "items": {
+        "Fist": {
+            "name": "拳头",
+            "description": "你的拳头，最可靠的武器（除非你有其他武器）"
+        },
+        "Wood Shield": {
+            "name": "木盾",
+            "description": "木制的盾牌，很容易损坏，比起修好还是再买一个来的划算"
+        },
+        "Sword": {
+            "name": "剑",
+            "description": "标准的利器，质量一般"
+        }
+    }
+}

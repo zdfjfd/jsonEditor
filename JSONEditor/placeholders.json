@@ -1,0 +1,10 @@
+{
+    "placeholders": {
+        "names": {
+            "narrator": "旁白",
+            "playerName": "玩家",
+            "self": "self",
+            "opponent": "opponent"
+        }
+    }
+}

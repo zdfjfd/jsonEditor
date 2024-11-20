@@ -1,0 +1,48 @@
+{
+    "ui": {
+        "mainMenu": {
+            "title": "Main Menu",
+            "startButton": "Start Game",
+            "settingsButton": "Settings",
+            "exitButton": "Exit"
+        },
+        "settingsMenu": {
+            "title": "Settings",
+            "audio": "Audio Settings",
+            "video": "Video Settings",
+            "controls": "Control Settings",
+            "backButton": "Back to Main Menu"
+        }
+    },
+    "notifications": {
+        "levelUp": {
+            "title": "Level Up!",
+            "message": "Congratulations! You've reached level {level}.",
+            "button": "Continue"
+        },
+        "newQuest": {
+            "title": "New Quest Available",
+            "message": "You have a new quest: {questName}. Check your quest log for details."
+        }
+    },
+    "errors": {
+        "network": {
+            "connectionLost": "Network connection lost. Please check your connection.",
+            "timeout": "The connection has timed out. Please try again later."
+        },
+        "game": {
+            "saveFailed": "Failed to save the game. Please try again.",
+            "loadFailed": "Failed to load the game. The save file may be corrupted."
+        }
+    },
+    "achievements": {
+        "firstKill": {
+            "title": "First Blood",
+            "description": "Defeat your first enemy in battle."
+        },
+        "collector": {
+            "title": "Collector",
+            "description": "Collect {itemCount} unique items."
+        }
+    }
+}

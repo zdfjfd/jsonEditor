@@ -1,0 +1,21 @@
+{
+    "dialog": {
+        "0": {
+            "character": "",
+            "text": "",
+            "options": [],
+            "next": "-1"
+        }
+
+    },
+    "option": {
+        "0": {
+            "comment": "none",
+            "text": "none",
+            "align": 0,
+            "tip": "none",
+            "next": "-1",
+            "conditions": []
+        }
+    }
+}
