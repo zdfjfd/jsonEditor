@@ -47,8 +47,6 @@ class Window(FluentWindow):
         self.timer.timeout.connect(self.auto_save)  
         self.auto_save_enabled = False
 
-        
-        
     def initNavigation(self):
         self.addSubInterface(self.homeInterface, FIF.HOME, '主页')
         self.navigationInterface.addSeparator()
@@ -136,8 +134,6 @@ class Window(FluentWindow):
     def load_file(self):
         """载入文件数据"""
         print("载入文件 "+self.save_path)
-
-
         if self.save_path:
             self.settings.save_recent_path(self.save_path)
             self.homeInterface.initSubMenu()
@@ -146,12 +142,14 @@ class Window(FluentWindow):
             self.dialogInterface.file = self.file
             self.dialogInterface.load_file()
             self.switchTo(self.dialogInterface)
+            self.editInterface.setEnabled(False)
         else:
             self.editInterface.file = self.file
             self.editInterface.load_file()
             self.switchTo(self.editInterface)
+            self.dialogInterface.setEnabled(False)
         if self.auto_save_enabled:
-            self.timer.start(180000)  
+            self.timer.start(180000)
 
     def save_backup(self):
         """恢复打开时的备份"""
@@ -166,6 +164,7 @@ class Window(FluentWindow):
                 self.homeInterface.initSubMenu()
 
     def auto_save(self):
+        """自动保存"""
         if isinstance(self.active_interface, DragDropWindow) or self.file is not self.active_interface.file:
             QTimer.singleShot(60000, self.auto_save)
             return
@@ -220,6 +219,7 @@ class Window(FluentWindow):
     # endregion
     
     def active_interface_change(self,index):
+        """切换活跃界面"""
         self.active_interface = self.interfaces[index]
 
 if __name__ == '__main__':
