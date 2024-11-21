@@ -4,13 +4,15 @@ import re
 from PyQt5 import QtCore, uic
 from PyQt5.QtCore import QSize,Qt,pyqtSignal
 from PyQt5.QtWidgets import (QDialog,QGroupBox,QFrame,QVBoxLayout, QSizePolicy,QHBoxLayout,QWidget,
-                             QStackedWidget,QApplication)
+                             QStackedWidget,QApplication,QLabel)
 from PyQt5.QtGui import QFont,QColor,QPalette
 from qfluentwidgets import (LineEdit,Dialog,BodyLabel,ToolButton,Action, CommandBar,LineEditButton,
                             RoundMenu,MenuAnimationType,TransparentToolButton,InfoBadgePosition,
                             TextBrowser,InfoBadge,IconInfoBadge,InfoBar,InfoBarPosition,LineEditMenu,
                             ColorDialog,DropDownButtonBase,ToolTipFilter,ToolTipPosition, 
-                            PlainTextEdit,TextEditMenu,DropDownPushButton,SwitchButton)
+                            PlainTextEdit,TextEditMenu,DropDownPushButton,ScrollArea,Slider,
+                            SettingCardGroup, SwitchSettingCard, SettingCard,
+                            ExpandLayout)
 from qfluentwidgets import FluentIcon as FIF
 from jsonEditor import JSONHandler
 
@@ -850,6 +852,61 @@ class ConditionBox(QFrame):
             return
         self.load_conditions()
 
+class RangeSettingCard(SettingCard):
+    """ Setting card with a slider """
+
+    valueChanged = pyqtSignal(int)
+
+    def __init__(self, icon:  FIF, title, content=None, parent=None):
+        """
+        Parameters
+        ----------
+
+        icon: str | QIcon | FluentIconBase
+            the icon to be drawn
+
+        title: str
+            the title of card
+
+        content: str
+            the content of card
+
+        parent: QWidget
+            parent widget
+        """
+        super().__init__(icon, title, content, parent)
+        self.slider = Slider(Qt.Horizontal, self)
+        self.valueLabel = QLabel(self)
+        self.slider.setMinimumWidth(268)
+
+        self.slider.setSingleStep(1)
+        # self.slider.setRange(*configItem.range)
+        # self.slider.setValue(configItem.value)
+        # self.valueLabel.setNum(configItem.value)
+
+        self.hBoxLayout.addStretch(1)
+        self.hBoxLayout.addWidget(self.valueLabel, 0, Qt.AlignRight)
+        self.hBoxLayout.addSpacing(6)
+        self.hBoxLayout.addWidget(self.slider, 0, Qt.AlignRight)
+        self.hBoxLayout.addSpacing(16)
+
+        self.valueLabel.setObjectName('valueLabel')
+        # configItem.valueChanged.connect(self.setValue)
+        self.slider.valueChanged.connect(self.__onValueChanged)
+
+    def __onValueChanged(self, value: int):
+        """ slider value changed slot """
+        self.setValue(value)
+        self.valueChanged.emit(value)
+
+    def setValue(self, value):
+        # qconfig.set(self.configItem, value)
+        self.valueLabel.setNum(value)
+        self.valueLabel.adjustSize()
+        self.slider.setValue(value)
+
+
+
 class EditInterface(QFrame):
 
     def __init__(self, text: str,parent:QWidget):
@@ -882,13 +939,7 @@ class EditInterface(QFrame):
             self.save_action
             ])
         self.menu.addWidget(commandBar)
-        
-        self.switchButton = SwitchButton(self.groupBox)
-        self.menu.addWidget(self.switchButton)
-        self.switchButton.setOffText("自动保存关闭")
-        self.switchButton.setOnText("自动保存已开启")
-        self.switchButton.setChecked(False)
-        self.switchButton.checkedChanged.connect(parent.enable_auto_save)
+    
 
         # 添加始终隐藏的动作
         commandBar.addHiddenActions([
@@ -1240,10 +1291,9 @@ class DialogInterface(QFrame):
         self.option_unsaved = False
         self.currentInfoBar:InfoBar = None
         self.settings = parent.settings
-        self.placeholders = self.settings.data['placeholders']['names']
         self.previous_text = ''
 
-        self.initConditionButton()
+        self.__initConditionButton()
 
         # style
         self.scrollArea.enableTransparentBackground()
@@ -1266,31 +1316,24 @@ class DialogInterface(QFrame):
             Action(FIF.RETURN, '保存启动备份', triggered=parent.save_backup)
             ])
         
-        # auto save button
-        self.switchButton = SwitchButton(self.menuBox)
-        self.menu.addWidget(self.switchButton)
-        self.switchButton.setOffText("自动保存关闭")
-        self.switchButton.setOnText("自动保存已开启")
-        self.switchButton.setChecked(False)
-        self.switchButton.checkedChanged.connect(parent.enable_auto_save)
         
         
         # buttons
-        self.connect_combobox(True)
+        self.__connect_combobox(True)
         self.clearDialogButton.setIcon(FIF.CLOSE.icon())
-        self.clearDialogButton.clicked.connect(self.clear_dialog)
+        self.clearDialogButton.clicked.connect(self.__clear_dialog)
 
         self.clearOptionButton.setIcon(FIF.CLOSE.icon())
-        self.clearOptionButton.clicked.connect(self.clear_option)
+        self.clearOptionButton.clicked.connect(self.__clear_option)
 
         self.renderDialogButton.setIcon(FIF.VIEW.icon())
-        self.renderDialogButton.clicked.connect(self.toggle_dialog_view)
+        self.renderDialogButton.clicked.connect(self.__toggle_dialog_view)
 
         self.nextDialogButton.setIcon(FIF.PAGE_RIGHT.icon())
-        self.nextDialogButton.clicked.connect(self.next_dialog)
+        self.nextDialogButton.clicked.connect(self.__next_dialog)
 
         self.lastDialogButton.setIcon(FIF.PAGE_LEFT.icon())
-        self.lastDialogButton.clicked.connect(self.last_dialog)
+        self.lastDialogButton.clicked.connect(self.__last_dialog)
 
         self.saveDialogButton.setIcon(FIF.SAVE.icon())
         self.saveDialogButton.clicked.connect(self.save_dialog)
@@ -1309,55 +1352,55 @@ class DialogInterface(QFrame):
         self.badge_op.hide()
 
         self.resetDialogButton.setIcon(FIF.SYNC.icon())
-        self.resetDialogButton.clicked.connect(self.reset_dialog)
+        self.resetDialogButton.clicked.connect(self.__reset_dialog)
 
         self.addOptionButton.setIcon(FIF.ADD.icon())
-        self.addOptionButton.clicked.connect(self.add_option_to_dialog)
+        self.addOptionButton.clicked.connect(self.__add_option_to_dialog)
 
-        self.dialogTextEdit.textChanged.connect(self.dialog_update_text)
+        self.dialogTextEdit.textChanged.connect(self.__dialog_update_text)
 
-        self.characterName.line_edit.textUpdated.connect(self.set_character_name)
+        self.characterName.line_edit.textUpdated.connect(self.__set_character_name)
 
         for align in OptionAlign:
             self.AlignComboBox.addItem(align.title)
             self.AlignComboBox.setItemData(self.AlignComboBox.count() - 1, QColor(align.color))
         self.AlignComboBox.setCurrentIndex(2)
-        self.AlignComboBox.currentIndexChanged.connect(self.set_align)
+        self.AlignComboBox.currentIndexChanged.connect(self.__set_align)
 
-        self.optionComboBox.currentIndexChanged.connect(self.change_option_from_combobox)
+        self.optionComboBox.currentIndexChanged.connect(self.__change_option_from_combobox)
 
-        self.optionCommentEdit.textUpdated.connect(self.option_update_comment)
-        self.optionCommentEdit.clicked.connect(self.save_option)
+        self.optionCommentEdit.textUpdated.connect(self.__option_update_comment)
+        self.optionCommentEdit.clicked.connect(self.__save_option)
         self.optionCommentEdit.toolButton.setIcon(FIF.SAVE)
 
-        self.optionLineEdit.line_edit.textUpdated.connect(self.option_update_text)
+        self.optionLineEdit.line_edit.textUpdated.connect(self.__option_update_text)
 
-        self.tipLineEdit.line_edit.textUpdated.connect(self.option_update_tip)
+        self.tipLineEdit.line_edit.textUpdated.connect(self.__option_update_tip)
 
-        self.optionNextBox.valueChanged.connect(self.set_next_option)
+        self.optionNextBox.valueChanged.connect(self.__set_next_option)
 
         self.createOptionButton.setIcon(FIF.ADD)
-        self.createOptionButton.clicked.connect(self.create_option)
+        self.createOptionButton.clicked.connect(self.__create_option)
 
-        self.startBox.currentIndexChanged.connect(self.jump_to_dialog)
+        self.startBox.currentIndexChanged.connect(self.__jump_to_dialog)
 
     def load_file(self):
         """加载文件到显示区"""
         data = self.file.data
-        self.file_saved()
+        self.__file_saved()
 
-        self.connect_combobox(False)
+        self.__connect_combobox(False)
         self.dialogComboBox.clear()
         self.dialogComboBox.addItems(data['dialog'].keys())
         self.dialogSpinBox.setMaximum(len(data['dialog'])+1)
         self.dialog = data['dialog']['0'].copy()
         self.option = data['option']['0'].copy()
 
-        self.load_conditions()
+        self.__load_conditions()
 
         self.change_dialog('0')
-        self.change_option('0')
-        self.connect_combobox(True)
+        self.__change_option('0')
+        self.__connect_combobox(True)
         self.allOptionsComboBox.clear()
         self.optionComboBox.clear()
         for index, option in enumerate(data['option']):
@@ -1365,17 +1408,17 @@ class DialogInterface(QFrame):
                 self.allOptionsComboBox.addItem(content)
                 self.optionComboBox.addItem(content)
                 # self.allOptionsComboBox.setItemData(index, self.file.data['option'][option]['text'], Qt.ToolTipRole)
-        self.file_saved()
-        self.load_preview()
+        self.__file_saved()
+        self.__load_preview()
         self.setEnabled(True)
 
     def save_all(self):
-        self.save_option()
+        self.__save_option()
         self.save_dialog()
 
     # region Save InfoBar
-    def file_unsaved(self):
-        if self.has_same_infoBar('更'):
+    def __file_unsaved(self):
+        if self.__has_same_infoBar('更'):
             return
         self.currentInfoBar = InfoBar.info(
             title='更改未保存',
@@ -1386,8 +1429,8 @@ class DialogInterface(QFrame):
             parent=self
         )
         self.currentInfoBar.setFont(QFont("VonwaonBitmap 16px",12))
-    def file_saved(self):
-        if self.has_same_infoBar('已'):
+    def __file_saved(self):
+        if self.__has_same_infoBar('已'):
             return
         self.currentInfoBar = InfoBar.success(
             title='已是最新',
@@ -1398,7 +1441,7 @@ class DialogInterface(QFrame):
             parent=self
         )
         self.badge.hide()
-    def has_same_infoBar(self,key)->bool:
+    def __has_same_infoBar(self,key)->bool:
         if self.currentInfoBar:
             try:
                 if key in self.currentInfoBar.title:
@@ -1422,16 +1465,16 @@ class DialogInterface(QFrame):
         self.badge.hide()
         self.dialog_unsaved = False
         print("对话已保存")
-        self.load_preview()
+        self.__load_preview()
         self.startBox.setCurrentIndex(int(id))
 
-    def reset_dialog(self):
+    def __reset_dialog(self):
         # id = str(self.dialogSpinBox.value())
         # if id !=  self.dialogComboBox.currentText():
         #     return
         self.dialog = self.file.data['dialog'][self.dialogID].copy()
         self.change_dialog(self.dialogID)
-    def clear_dialog(self):
+    def __clear_dialog(self):
         self.dialog = {
             "character": "none",
             "text": "",
@@ -1440,8 +1483,8 @@ class DialogInterface(QFrame):
         }
         self.change_dialog(self.dialogID)
 
-    def change_dialog_from_combobox(self):
-        self.save_dialog_confirm()
+    def __change_dialog_from_combobox(self):
+        self.__save_dialog_confirm()
         # self.dialogComboBox = ComboBox()
         self.dialogID = self.dialogComboBox.currentText()
         try:
@@ -1450,8 +1493,8 @@ class DialogInterface(QFrame):
             self.create_dialog()
 
         self.change_dialog(self.dialogID)
-    def change_dialog_from_spinbox(self):
-        self.save_dialog_confirm()
+    def __change_dialog_from_spinbox(self):
+        self.__save_dialog_confirm()
         self.dialogID = str(self.dialogSpinBox.value())
         try:
             self.dialog = self.file.data['dialog'][self.dialogID].copy()
@@ -1463,17 +1506,17 @@ class DialogInterface(QFrame):
         self.change_dialog(self.dialogID)
 
     def change_dialog(self,id:str):
-        self.connect_combobox(False)
+        self.__connect_combobox(False)
         self.dialogSpinBox.setValue(int(id))
         self.dialogComboBox.setCurrentText(id)
         self.dialogID = id
-        self.connect_combobox(True)
+        self.__connect_combobox(True)
         self.characterName.setText(self.dialog['character'])
         self.nextDialogBox.setValue(int(self.dialog['next']))
         self.dialogTextEdit.setText(self.dialog['text'])
-        self.toggle_dialog_view()
-        self.toggle_dialog_view()
-        self.load_options()
+        self.__toggle_dialog_view()
+        self.__toggle_dialog_view()
+        self.__load_options()
         self.dialog_unsaved = False
         self.badge.hide()
     def create_dialog(self):
@@ -1489,13 +1532,13 @@ class DialogInterface(QFrame):
         self.dialogSpinBox.setMaximum(len(self.file.data['dialog'])+1)
         self.dialogComboBox.addItem(str(self.dialogSpinBox.maximum()-1))
         self.file.data['dialog'][str(self.dialogSpinBox.maximum()-1)] = new_dialog
-        self.file_unsaved()
+        self.__file_unsaved()
 
-    def connect_combobox(self,connect:bool):
+    def __connect_combobox(self,connect:bool):
         commands = [
-            (self.dialogComboBox.currentIndexChanged.disconnect,self.change_dialog_from_combobox),
-            (self.dialogSpinBox.valueChanged.disconnect,self.change_dialog_from_spinbox),
-            (self.nextDialogBox.valueChanged.disconnect,self.set_next_dialog)
+            (self.dialogComboBox.currentIndexChanged.disconnect,self.__change_dialog_from_combobox),
+            (self.dialogSpinBox.valueChanged.disconnect,self.__change_dialog_from_spinbox),
+            (self.nextDialogBox.valueChanged.disconnect,self.__set_next_dialog)
         ]
         for func, *args in commands:
             try:
@@ -1504,11 +1547,11 @@ class DialogInterface(QFrame):
                 pass
 
         if connect:
-            self.dialogComboBox.currentIndexChanged.connect(self.change_dialog_from_combobox)
-            self.dialogSpinBox.valueChanged.connect(self.change_dialog_from_spinbox)
-            self.nextDialogBox.valueChanged.connect(self.set_next_dialog)
+            self.dialogComboBox.currentIndexChanged.connect(self.__change_dialog_from_combobox)
+            self.dialogSpinBox.valueChanged.connect(self.__change_dialog_from_spinbox)
+            self.nextDialogBox.valueChanged.connect(self.__set_next_dialog)
 
-    def add_option_to_dialog(self):
+    def __add_option_to_dialog(self):
         option_str = str(self.allOptionsComboBox.currentText())
         if option_str:
             option = option_str.split(',')[0]
@@ -1528,7 +1571,7 @@ class DialogInterface(QFrame):
             # self.load_options()
             self.badge.show()
             self.dialog_unsaved = True
-            self.file_unsaved()
+            self.__file_unsaved()
         self.allOptionsComboBox.setCurrentText(option_str)
 
     def remove_option_from_dialog(self,content:str):
@@ -1536,12 +1579,12 @@ class DialogInterface(QFrame):
             option = content.split(',')[0]
             if option in self.dialog['options']:
                 self.dialog['options'].remove(option)
-                self.load_options()
+                self.__load_options()
                 self.badge.show()
                 self.dialog_unsaved = True
-                self.file_unsaved()
+                self.__file_unsaved()
 
-    def dialog_update_text(self):
+    def __dialog_update_text(self):
         # if not modified:
         #     return
         
@@ -1549,8 +1592,8 @@ class DialogInterface(QFrame):
         # print('对话更新为'+self.dialog['text'])
         self.badge.show()
         self.dialog_unsaved = True
-        self.file_unsaved()
-    def toggle_dialog_view(self):
+        self.__file_unsaved()
+    def __toggle_dialog_view(self):
         current_index = self.stackedWidget.currentIndex()
         new_index = 1 - current_index
         self.stackedWidget.setCurrentIndex(new_index)
@@ -1565,7 +1608,7 @@ class DialogInterface(QFrame):
             </div>
         """)
 
-    def load_options(self):
+    def __load_options(self):
         options = self.dialog['options']
         
         self.optionForm.layout().removeWidget(self.addOptionButton)
@@ -1586,22 +1629,22 @@ class DialogInterface(QFrame):
         self.optionForm.layout().addRow(self.addOptionButton,self.allOptionsComboBox)
                 # self.allOptionsComboBox.addItem(content)
 
-    def set_next_dialog(self):
+    def __set_next_dialog(self):
         self.dialog['next'] = str(self.nextDialogBox.value())
         self.badge.show()
         self.dialog_unsaved = True
-        self.file_unsaved()
-    def set_character_name(self):
+        self.__file_unsaved()
+    def __set_character_name(self):
         self.dialog['character'] = self.characterName.line_edit.text()
         self.badge.show()
         self.dialog_unsaved = True
-        self.file_unsaved()
+        self.__file_unsaved()
     
-    def next_dialog(self):
+    def __next_dialog(self):
         self.dialogComboBox.setCurrentIndex(self.dialogSpinBox.value()+1)
-    def last_dialog(self):
+    def __last_dialog(self):
         self.dialogComboBox.setCurrentIndex(self.dialogSpinBox.value()-1)
-    def save_dialog_confirm(self):
+    def __save_dialog_confirm(self):
         if self.dialog_unsaved:
             confirm = ConfirmDialog("未保存","要保存当前对话吗")
             if confirm.exec_() == QDialog.Accepted:
@@ -1609,30 +1652,30 @@ class DialogInterface(QFrame):
     # endregion
 
     # region Option
-    def change_option_from_combobox(self):
+    def __change_option_from_combobox(self):
         option_str = str(self.optionComboBox.currentText())
         if option_str:
             option = option_str.split(',')[0]
             try:
-                self.save_option_confirm()
+                self.__save_option_confirm()
                 self.option = self.file.data['option'][option].copy()
-                self.change_option(option)
+                self.__change_option(option)
             except KeyError:
                 pass
-    def change_option(self,id:str):
-        self.connect_combobox(False)
+    def __change_option(self,id:str):
+        self.__connect_combobox(False)
         self.optionIDLabel.setText(id)
-        self.connect_combobox(True)
+        self.__connect_combobox(True)
         self.optionNextBox.setValue(int(self.option['next']))
         self.optionLineEdit.setText(self.option['text'])
         self.optionCommentEdit.setText(self.option['comment'])
         self.AlignComboBox.setCurrentIndex(self.option['align']+2)
         self.tipLineEdit.setText(self.option['tip'])
-        self.load_conditions()
-        self.load_options()
+        self.__load_conditions()
+        self.__load_options()
         self.badge_op.hide()
         self.option_unsaved = False
-    def save_option(self):
+    def __save_option(self):
         print('选项已保存')
         id = self.optionIDLabel.text()
         conds = self.option.get('conditions',[])
@@ -1644,17 +1687,18 @@ class DialogInterface(QFrame):
         self.file.data['option'][id] = self.option.copy()
         self.optionComboBox.setItemText(int(id),id+','+self.option['comment'])
         self.allOptionsComboBox.setItemText(int(id),id+','+self.option['comment'])
-        self.jump_to_dialog(self.startBox.currentIndex())    
+        self.__jump_to_dialog(self.startBox.currentIndex())    
         self.badge_op.hide()
         self.option_unsaved = False
         
-    def reset_option(self):
+    def __reset_option(self):
         id = str(self.optionIDLabel.text())
         self.option = self.file.data['option'][id].copy()
         self.badge_op.hide()
         self.option_unsaved = False
-        self.change_option(id)
-    def clear_option(self):
+        self.__change_option(id)
+
+    def __clear_option(self):
         self.option = {
                 "comment": "",
                 "text": "",
@@ -1665,9 +1709,9 @@ class DialogInterface(QFrame):
             }
         self.badge_op.show()
         self.option_unsaved = True
-        self.change_option(self.optionIDLabel.text())
-    def create_option(self):
-        self.save_option_confirm()
+        self.__change_option(self.optionIDLabel.text())
+    def __create_option(self):
+        self.__save_option_confirm()
         new_option = {
                 "comment": "none",
                 "text": "",
@@ -1680,41 +1724,41 @@ class DialogInterface(QFrame):
         id = int(max(self.file.data['option'].keys(),key=int))+1
         self.optionIDLabel.setText(str(id))
         self.option = new_option
-        self.change_option(str(id))
+        self.__change_option(str(id))
         self.optionComboBox.addItem(str(id)+','+self.option['comment'])
         self.allOptionsComboBox.addItem(str(id)+','+self.option['comment'])
 
-        self.optionComboBox.currentIndexChanged.disconnect(self.change_option_from_combobox)
+        self.optionComboBox.currentIndexChanged.disconnect(self.__change_option_from_combobox)
         self.optionComboBox.setCurrentIndex(self.optionComboBox.count()-1)
-        self.optionComboBox.currentIndexChanged.connect(self.change_option_from_combobox)
+        self.optionComboBox.currentIndexChanged.connect(self.__change_option_from_combobox)
 
-        self.save_option()
-        self.file_unsaved()
+        self.__save_option()
+        self.__file_unsaved()
 
-    def option_update_text(self):
+    def __option_update_text(self):
         self.option['text'] = self.optionLineEdit.line_edit.text()
         print('选项文本更新为'+self.option['text'])
         self.badge_op.show()
         self.option_unsaved = True
-        self.file_unsaved()
-    def option_update_tip(self):
+        self.__file_unsaved()
+    def __option_update_tip(self):
         self.option['tip'] = self.tipLineEdit.line_edit.text()
         print('选项提示更新为'+self.option['tip'])
         self.badge_op.show()
         self.option_unsaved = True
-        self.file_unsaved()
-    def option_update_comment(self):
+        self.__file_unsaved()
+    def __option_update_comment(self):
         self.option['comment'] = self.optionCommentEdit.text()
         print('选项备注更新为'+self.option['comment'])
         self.badge_op.show()
         self.option_unsaved = True
-        self.file_unsaved()
-    def set_next_option(self):
+        self.__file_unsaved()
+    def __set_next_option(self):
         self.option['next'] = str(self.optionNextBox.value())
         self.badge_op.show()
         self.option_unsaved = True
-        self.file_unsaved()
-    def set_align(self,index:int):
+        self.__file_unsaved()
+    def __set_align(self,index:int):
         # self.AlignComboBox = ComboBox()
         palette = self.AlignComboBox.palette()
         palette.setColor(QPalette.Text, QColor("red"))  # 设置文本颜色
@@ -1723,14 +1767,14 @@ class DialogInterface(QFrame):
         self.option['align'] = index-2
         self.badge_op.show()
         self.option_unsaved = True
-        self.file_unsaved()
-    def save_option_confirm(self):
+        self.__file_unsaved()
+    def __save_option_confirm(self):
         if self.option_unsaved:
             confirm = ConfirmDialog("未保存","要保存当前选项吗")
             if confirm.exec_() == QDialog.Accepted:
-                self.save_option()
+                self.__save_option()
 
-    def load_conditions(self):
+    def __load_conditions(self):
         self.conditionForm.layout().removeWidget(self.addConditionButton)
         for i in reversed(range(self.conditionForm.layout().count())): 
             widget = self.conditionForm.layout().itemAt(i).widget()
@@ -1746,47 +1790,47 @@ class DialogInterface(QFrame):
         # self.conditionBox = ConditionBox(self)
         # self.conditionForm.layout().addRow(self.conditionBox)
         self.conditionForm.layout().addRow(self.addConditionButton)
-    def initConditionButton(self):
+    def __initConditionButton(self):
         self.addConditionButton.setMenu(RoundMenu())
         self.addConditionButton.menu().addActions([
-            Action(FIF.ADD,'添加OR条件',self,triggered = self.create_condition),
-            Action(FIF.CANCEL,'移除OR条件',self,triggered = self.remove_condition)
+            Action(FIF.ADD,'添加OR条件',self,triggered = self.__create_condition),
+            Action(FIF.CANCEL,'移除OR条件',self,triggered = self.__remove_condition)
         ])
         self.conditions = []
-    def create_condition(self):
+    def __create_condition(self):
         condition = ConditionBox(self)
         self.conditionForm.layout().removeWidget(self.addConditionButton)
         self.conditionForm.layout().addRow(condition)
         self.conditionForm.layout().addRow(self.addConditionButton)
         self.conditions.append(condition)
-        self.file_unsaved()
+        self.__file_unsaved()
         self.option_unsaved = True
         self.badge_op.show()
-    def remove_condition(self):
+    def __remove_condition(self):
         if self.conditions:
             self.conditionForm.layout().removeWidget(self.conditions[-1])
             self.conditions[-1].deleteLater()
             self.conditions.pop(-1)
-            self.file_unsaved()
+            self.__file_unsaved()
             self.option_unsaved = True
             self.badge_op.show()
 
     # endregion
 
     # region previewer
-    def load_preview(self):
+    def __load_preview(self):
         dialogs = self.file.data['dialog']
         self.startBox.clear()
         for id,dialog in dialogs.items():
             self.startBox.addItem(id+':'+replace_placeholders(dialog['character']))
 
-    def jump_to_dialog(self,index:int):
+    def __jump_to_dialog(self,index:int):
         self.previous_text = ''
-        self.load_dialog(str(index))
+        self.__load_dialog(str(index))
         
-    def load_dialog(self,id:str):
+    def __load_dialog(self,id:str):
         if id=='-1':
-            self.load_dialog_end()
+            self.__load_dialog_end()
             return
 
         data = self.file.data
@@ -1797,7 +1841,7 @@ class DialogInterface(QFrame):
             return
         except TypeError:
             pass
-        self.set_current_preview_index(int(id))
+        self.__set_current_preview_index(int(id))
         self.continueButton.setMenu(RoundMenu())
         
         # self.continueButton.menu().setToolTipsVisible(True)
@@ -1806,20 +1850,20 @@ class DialogInterface(QFrame):
         self.previous_text += dialog_preview_text(tmp_to_html(dialog['character']),
                                                   tmp_to_html(dialog['text']))
         self.previewBrowser.setHtml(self.previous_text)
-        self.scroll_to_bottom()
+        self.__scroll_to_bottom()
 
         if dialog['next'] == '-1':
             if dialog['options']:
                 self.continueButton.setText('选项')
                 for option in dialog['options']:
-                    self.set_options_menu(option)
+                    self.__set_options_menu(option)
             else:
-                self.load_dialog_end()
+                self.__load_dialog_end()
         else:
             self.continueButton.setText('继续')
-            self.set_continue_button(dialog['next'])
+            self.__set_continue_button(dialog['next'])
                              
-    def set_options_menu(self,option:str):
+    def __set_options_menu(self,option:str):
         options  = self.file.data['option']
         tip = options[option]['tip']
         align = OptionAlign(options[option]['align'])
@@ -1831,45 +1875,109 @@ class DialogInterface(QFrame):
             self.continueButton.menu().addMenu(submenu)
             for cond in conditions:
                 submenu.addAction(
-                    Action(condition_to_text(cond),triggered=lambda:self.option_to_dialog(option))
+                    Action(condition_to_text(cond),triggered=lambda:self.__option_to_dialog(option))
                 )
             return
        
         self.continueButton.menu().addAction(
             Action(content,
-                   triggered=lambda:self.option_to_dialog(option))
+                   triggered=lambda:self.__option_to_dialog(option))
         )
         # action.setToolTip(all_conditions_to_text(conditions))
         # action.installEventFilter(
         #     ToolTipFilter(action, showDelay=30, position=ToolTipPosition.BOTTOM))
         # self.continueButton.menu().addAction(action)
-    def set_continue_button(self,next:str):
-        self.continueButton.clicked.connect(lambda :self.load_dialog(next))
-    def option_to_dialog(self,option):
+    def __set_continue_button(self,next:str):
+        self.continueButton.clicked.connect(lambda :self.__load_dialog(next))
+    def __option_to_dialog(self,option):
         options  = self.file.data['option']
         text = options[option]['text']+f'({options[option]['tip']})'
         align = OptionAlign(options[option]['align'])
         text = tmp_to_html(text) + f' [<span style="color:{align.color}">{align.title}</span>]'
         self.previous_text+= dialog_preview_text('选项',text,True)
         self.previewBrowser.setHtml(self.previous_text)
-        self.scroll_to_bottom()
-        self.load_dialog(options[option]['next'])
-    def scroll_to_bottom(self):
+        self.__scroll_to_bottom()
+        self.__load_dialog(options[option]['next'])
+    def __scroll_to_bottom(self):
         # 滚动到垂直滚动条的最大位置
         self.previewBrowser.verticalScrollBar().setValue(self.previewBrowser.verticalScrollBar().maximum())
-    def load_dialog_end(self):
+    def __load_dialog_end(self):
         self.continueButton.setText('结束对话')
         self.previous_text+= dialog_preview_text('选项','<i>对话已结束</i>',True)
         self.previewBrowser.setHtml(self.previous_text)
-        self.scroll_to_bottom()
+        self.__scroll_to_bottom()
         self.continueButton.menu().clear()
         try:
             self.continueButton.clicked.disconnect()
         except TypeError:
             pass
-    def set_current_preview_index(self,index:int):
-        self.startBox.currentIndexChanged.disconnect(self.jump_to_dialog)
+    def __set_current_preview_index(self,index:int):
+        self.startBox.currentIndexChanged.disconnect(self.__jump_to_dialog)
         self.startBox.setCurrentIndex(index)
-        self.startBox.currentIndexChanged.connect(self.jump_to_dialog)
+        self.startBox.currentIndexChanged.connect(self.__jump_to_dialog)
     # endregion
 
+class SettingsInterface(ScrollArea):
+    def __init__(self, text:str, parent=None):
+        super().__init__(parent=parent)
+
+        self.setObjectName(text.replace(' ', '-'))
+        
+        self.scrollWidget = QWidget()
+        self.expandLayout = ExpandLayout(self.scrollWidget)
+
+        self.saveGroup = SettingCardGroup(
+            '自动保存', self.scrollWidget)
+        self.autosaveCard = SwitchSettingCard(
+            FIF.SYNC,
+            '自动保存',
+            '启用定时自动保存',
+            None,
+            self.saveGroup
+        )
+        
+        self.timeCard = RangeSettingCard(
+            FIF.STOP_WATCH,
+           '保存间隔',
+            '自动保存间隔（秒）',
+            parent=self.saveGroup
+        )
+        
+        self.__initWidget()
+        self.__connectSignals()
+
+    def __initWidget(self):
+        self.resize(1000, 800)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setViewportMargins(0, 80, 0, 20)
+        self.setWidget(self.scrollWidget)
+        self.setWidgetResizable(True)
+        self.setObjectName('settingInterface')
+        self.enableTransparentBackground()
+        # initialize style sheet
+        self.scrollWidget.setObjectName('scrollWidget')
+        # self.settingLabel.setObjectName('settingLabel')
+        # StyleSheet.SETTING_INTERFACE.apply(self)
+
+        # self.micaCard.setEnabled(isWin11())
+
+        # initialize layout
+        self.__initLayout()
+        # self.__connectSignalToSlot()
+    def __initLayout(self):
+
+        self.saveGroup.addSettingCard(self.autosaveCard)
+        self.saveGroup.addSettingCard(self.timeCard)
+
+        # add setting card group to layout
+        self.expandLayout.setSpacing(28)
+        self.expandLayout.setContentsMargins(36, 10, 36, 0)
+        self.expandLayout.addWidget(self.saveGroup)
+
+    def __connectSignals(self):
+        self.autosaveCard.setChecked(self.parent().settings.get_setting('auto save'))
+        self.autosaveCard.checkedChanged.connect(self.parent().enable_auto_save)
+
+        self.timeCard.slider.setRange(30,300)
+        self.timeCard.setValue(int(self.parent().auto_save_time/1000))
+        self.timeCard.valueChanged.connect(self.parent().change_save_time)
