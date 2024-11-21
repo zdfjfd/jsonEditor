@@ -93,6 +93,8 @@ class UserSettings(JSONHandler):
                 "theme": "light",
                 "language": "chs",
                 "notifications": True,
+                "auto save":False,
+                "auto save time":180000,
             },
             "recent":{
                 "path0":None,
@@ -182,11 +184,11 @@ class UserSettings(JSONHandler):
         """设置用户偏好并更新文件"""
         self.data["settings"][key] = value
         print(f"设置更新：{key} = {value}")
-        self.save_json()
+        self.save_json(self.path)
 
     def get_setting(self, key):
         """获取某个设置的值"""
-        return self.data["settings"].get(key, f"{key} 不存在")
+        return self.data["settings"].get(key)
 
     def save_recent_path(self, path:str):
         """存储最近打开的文件路径"""

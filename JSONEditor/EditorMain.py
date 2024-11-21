@@ -5,7 +5,7 @@ from qfluentwidgets import FluentWindow, setTheme,Theme,StateToolTip,InfoBar,Inf
 from qfluentwidgets import FluentIcon as FIF
 import sys
 from pathlib import Path
-from EditorWidgets import EditInterface,DragDropWindow,DialogInterface
+from EditorWidgets import EditInterface,DragDropWindow,DialogInterface, SettingsInterface
 from jsonEditor import JSONHandler,UserSettings
 
 current_path = Path(__file__)
@@ -20,7 +20,6 @@ class Window(FluentWindow):
         setTheme(Theme.DARK)
         self.resize(1200,1000)
 
-
         self.save_path = ""
         self.file = None
         self.settings = UserSettings()
@@ -28,13 +27,17 @@ class Window(FluentWindow):
         self.selected_item = {}
         self.input_fields = {}
         self.item_unsaved = False
+        # self.auto_save_enabled = False
+        # self.auto_save_time = 180000
+        self.load_settings()
 
-        
         self.homeInterface = DragDropWindow('Home Interface', parent_dir + '/UI/Home.ui',self)
 
 
         self.editInterface = EditInterface('Edit Interface',self)
         self.dialogInterface = DialogInterface('Dialog Interface', self)
+
+        self.settingInterface = SettingsInterface('Setting Interface', self)
 
 
         self.homeInterface.fileDropped.connect(self.drop_file)
@@ -45,24 +48,25 @@ class Window(FluentWindow):
         self.active_interface = self.homeInterface
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.auto_save)  
-        self.auto_save_enabled = False
 
     def initNavigation(self):
         self.addSubInterface(self.homeInterface, FIF.HOME, '主页')
         self.navigationInterface.addSeparator()
         self.addSubInterface(self.editInterface, FIF.EDIT, '默认编辑器')
         self.addSubInterface(self.dialogInterface, FIF.MESSAGE, '对话编辑器',NavigationItemPosition.SCROLL)
-        # self.addSubInterface(DragDropWindow('Home Interface2', 'Home.ui',self), FIF.VIDEO, 'Video library')
-        # self.navigationInterface.addSeparator()
-        # self.addSubInterface(DragDropWindow('Home Interface3', 'Home.ui',self), FIF.ALBUM, 'Albums', NavigationItemPosition.SCROLL)
-        self.interfaces = [self.homeInterface,self.editInterface,self.dialogInterface]
-        # self.addSubInterface(self.settingInterface, FIF.SETTING, 'Settings', NavigationItemPosition.BOTTOM)
+        self.addSubInterface(self.settingInterface, FIF.SETTING, '设置', NavigationItemPosition.BOTTOM)
+        self.interfaces = [self.homeInterface,self.editInterface,self.dialogInterface,self.settingInterface]
+        
 
     def initWindow(self):
         self.setWindowTitle("json编辑器")
         self.resize(900, 700)
         # self.setWindowIcon(QIcon(':/qfluentwidgets/images/logo.png'))
         self.stateTooltip = None
+
+    def load_settings(self):
+        self.auto_save_enabled = self.settings.get_setting('auto save')
+        self.auto_save_time = self.settings.get_setting('auto save time')
 
     # region file
     def create_new_file(self):
@@ -113,7 +117,7 @@ class Window(FluentWindow):
         self.homeInterface.initSubMenu()
         QTimer.singleShot(500, self.save_complete)
         if self.auto_save_enabled:
-            self.timer.start(180000)  
+            self.timer.start(self.auto_save_time)  
         # asyncio.run(self.save_complete())
         # self.save_complete()
     def save_file_as(self):
@@ -130,7 +134,7 @@ class Window(FluentWindow):
         self.homeInterface.initSubMenu()
         QTimer.singleShot(500, self.save_complete)
         if self.auto_save_enabled:
-            self.timer.start(180000)  
+            self.timer.start(self.auto_save_time)  
     def load_file(self):
         """载入文件数据"""
         print("载入文件 "+self.save_path)
@@ -149,7 +153,7 @@ class Window(FluentWindow):
             self.switchTo(self.editInterface)
             self.dialogInterface.setEnabled(False)
         if self.auto_save_enabled:
-            self.timer.start(180000)
+            self.timer.start(self.auto_save_time)
 
     def save_backup(self):
         """恢复打开时的备份"""
@@ -182,12 +186,16 @@ class Window(FluentWindow):
         )
     def enable_auto_save(self,enable):
         self.auto_save_enabled = enable
+        self.settings.set_setting('auto save',enable)
         if self.auto_save_enabled:
-            self.timer.start(180000)
+            self.timer.start(self.auto_save_time)
+            print('自动保存启用')
         else:
             if self.timer.isActive():
                 self.timer.stop() 
-
+    def change_save_time(self,t:int):
+        self.auto_save_time = t*1000
+        self.settings.set_setting('auto save time',self.auto_save_time)
     def save_progress(self):
         """存储进度条"""
         # if self.stateTooltip:
