@@ -2,7 +2,7 @@ from enum import Enum
 from pathlib import Path
 import re
 from PyQt5 import QtCore, uic
-from PyQt5.QtCore import QSize,Qt,pyqtSignal
+from PyQt5.QtCore import QSize,Qt,pyqtSignal,QCoreApplication
 from PyQt5.QtWidgets import (QDialog,QGroupBox,QFrame,QVBoxLayout, QSizePolicy,QHBoxLayout,QWidget,
                              QStackedWidget,QApplication,QLabel)
 from PyQt5.QtGui import QFont,QColor,QPalette
@@ -11,7 +11,7 @@ from qfluentwidgets import (LineEdit,Dialog,BodyLabel,ToolButton,Action, Command
                             TextBrowser,InfoBadge,IconInfoBadge,InfoBar,InfoBarPosition,LineEditMenu,
                             ColorDialog,DropDownButtonBase,ToolTipFilter,ToolTipPosition, 
                             PlainTextEdit,TextEditMenu,DropDownPushButton,ScrollArea,Slider,
-                            SettingCardGroup, SwitchSettingCard, SettingCard,
+                            SettingCardGroup, SwitchSettingCard, SettingCard,ComboBox,
                             ExpandLayout)
 from qfluentwidgets import FluentIcon as FIF
 from jsonEditor import JSONHandler
@@ -51,7 +51,7 @@ class OptionAlign(Enum):
             -2:"堕落",
             -1:"自私",
             0: "中立", 
-            1: "善良 ", 
+            1: "善良", 
             2: "高尚"}.get(value)
 class Comparison(Enum):
     EQUAL = 0
@@ -95,7 +95,7 @@ class OptionCondition:
         except ValueError:
             self.val = int(data[2:])
     def to_text(self):
-        return self.stats.text+self.comp.text+str(self.val)
+        return QCoreApplication.translate('Stats',self.stats.text)+' '+QCoreApplication.translate('Compare',self.comp.text)+' '+str(self.val)
 
     def __eq__(self,other):
         if isinstance(other, OptionCondition):
@@ -222,38 +222,38 @@ class ConfirmDialog(Dialog):
 class EditMenu:
     """ right click menu for text edition"""
     def __init__(self):
-        self.textEdit = RoundMenu("文字", self)
+        self.textEdit = RoundMenu(QCoreApplication.translate("menu","文字"), self)
         self.textEdit.setIcon(FIF.EDIT)
         self.textEdit.addActions([
-            Action("加粗", self,triggered=lambda:self.add_tag_to(Format.BOLD) ),
-            Action("斜体", triggered=lambda:self.add_tag_to(Format.ITALIC) ),
-            Action("下划线", triggered=lambda:self.add_tag_to(Format.UNDERLINE)),
-            Action("删除线", triggered=lambda:self.add_tag_to(Format.STRIKE)),
-            Action("颜色", triggered=self.add_color_tag_to)
+            Action(QCoreApplication.translate("menu","加粗"), self,triggered=lambda:self.add_tag_to(Format.BOLD) ),
+            Action(QCoreApplication.translate("menu","斜体"), triggered=lambda:self.add_tag_to(Format.ITALIC) ),
+            Action(QCoreApplication.translate("menu","下划线"), triggered=lambda:self.add_tag_to(Format.UNDERLINE)),
+            Action(QCoreApplication.translate("menu","删除线"), triggered=lambda:self.add_tag_to(Format.STRIKE)),
+            Action(QCoreApplication.translate("menu","颜色"), triggered=self.add_color_tag_to)
         ])
 
-        self.insertText = RoundMenu("插入",self)
+        self.insertText = RoundMenu(QCoreApplication.translate("menu","插入"),self)
         self.insertText.setIcon(FIF.CODE)
 
-        self.insertTag = RoundMenu("排版",self)
+        self.insertTag = RoundMenu(QCoreApplication.translate("menu","排版"),self)
         self.insertTag.addActions([
-            Action("换行", triggered=lambda:self.insert_text_to("<br>") ),
+            Action(QCoreApplication.translate("menu","换行"), triggered=lambda:self.insert_text_to("<br>") ),
         ])
         self.insertText.addMenu(self.insertTag)
 
         # self.settings = UserSettings()
         global placeholders
 
-        self.insertName = RoundMenu("名字",self)
+        self.insertName = RoundMenu(QCoreApplication.translate("menu","名字"),self)
         for n in placeholders.data["placeholders"]['names']:
             self.add_insert_action(self.insertName,'names',n)
         self.insertText.addMenu(self.insertName)
 
-        self.insertNumber = RoundMenu("数值",self)
+        self.insertNumber = RoundMenu(QCoreApplication.translate("menu","数值"),self)
         self.insertNumber.addActions([
-            Action("等级", triggered=lambda:self.insert_text_to("{"+"level"+"}") ),
-            Action("伤害", triggered=lambda:self.insert_text_to("{"+"damage"+"}") ),
-            Action("生命值", triggered=lambda:self.insert_text_to("{"+"hp"+"}"))
+            Action(QCoreApplication.translate("menu","等级"), triggered=lambda:self.insert_text_to("{"+"level"+"}") ),
+            Action(QCoreApplication.translate("menu","伤害"), triggered=lambda:self.insert_text_to("{"+"damage"+"}") ),
+            Action(QCoreApplication.translate("menu","生命值"), triggered=lambda:self.insert_text_to("{"+"hp"+"}"))
         ])
         self.insertText.addMenu(self.insertNumber)
 
@@ -278,7 +278,7 @@ class EditMenu:
         self.color = '#ffffff'
         if colors:
             self.color = colors[0]
-        w = ColorDialog(QColor(self.color), "选择字体颜色", QApplication.instance().activeWindow(), enableAlpha=False)
+        w = ColorDialog(QColor(self.color), QCoreApplication.translate("menu","选择字体颜色"), QApplication.instance().activeWindow(), enableAlpha=False)
         w.colorChanged.connect(self.choose_color)
         if w.exec_() == QDialog.Accepted:
             wrapped_text = add_color_tag(self.selected,self.color)
@@ -331,7 +331,7 @@ class EditorLineEdit(LineEdit,EditMenu):
     def contextMenuEvent(self, event):
         menu = RoundMenu(self)
         default_menu = LineEditMenu(self)
-        default_menu._title = '编辑'
+        default_menu._title = QCoreApplication.translate('menu','编辑')
         default_menu.setIcon(FIF.PASTE)
         menu.addMenu(default_menu)
         menu.addSeparator() 
@@ -354,7 +354,7 @@ class EditorPlainTextEdit(PlainTextEdit,EditMenu):
 
         menu = RoundMenu(self)
         default_menu = TextEditMenu(self)
-        default_menu._title = '编辑'
+        default_menu._title = QCoreApplication.translate('menu','编辑')
         default_menu.setIcon(FIF.PASTE)
         menu.addMenu(default_menu)
         menu.addSeparator() 
@@ -424,10 +424,9 @@ class MultiFuncButton(DropDownLineEditButton):
         self.setMenu(RoundMenu(self))
         self.action_slots = []
         self.addActions([
-            Action(FIF.CODE,"空" ),
-            Action(FIF.COPY, "当前模板" ),
-            # Action(FIF.PASTE, "当前模板到全部父级"),
-            Action(FIF.ADD, "其他")
+            Action(FIF.CODE,'空' ),
+            Action(FIF.COPY,'当前模板' ),
+            # Action(FIF.ADD, self.tr("其他"))
         ])
 
     def addActions(self,actions:list[Action]):
@@ -438,6 +437,7 @@ class MultiFuncButton(DropDownLineEditButton):
         action.triggered.connect(lambda :self.action_triggered(index))
         # print(index)
         self.action_slots.append(action.text())
+        action.setText(QCoreApplication.translate('Form',action.text()))
         self.menu().addAction(action)
     
     def clear(self):
@@ -663,8 +663,8 @@ class DragDropWindow(QFrame):
         menu = RoundMenu()
         self.newButton.setMenu(menu)
         menu.addActions([
-            Action(FIF.EDIT,'新建空文件',triggered=parent.create_new_file),
-            Action(FIF.MESSAGE,'新建空对话文件',triggered=parent.create_new_dialog)
+            Action(FIF.EDIT,QCoreApplication.translate('Form','新建空文件'),triggered=parent.create_new_file),
+            Action(FIF.MESSAGE,QCoreApplication.translate('Form','新建空对话文件'),triggered=parent.create_new_dialog)
         ])
 
         self.recent = parent.settings.data["recent"]
@@ -676,7 +676,7 @@ class DragDropWindow(QFrame):
 
         self.menu = RoundMenu(parent=self)
 
-        self.submenu = RoundMenu("打开近期", self)
+        self.submenu = RoundMenu(QCoreApplication.translate('Form',"打开近期"), self)
         self.submenu.setIcon(FIF.FOLDER_ADD)
         self.initSubMenu()
         self.menu.addMenu(self.submenu)
@@ -760,8 +760,8 @@ class OptionRow(QGroupBox):
         container_form_layout.addWidget(self.label)
         self.label.setMenu(RoundMenu())
         self.label.menu().addActions([
-                    Action(FIF.DELETE,'移除',triggered=lambda:parent.remove_option_from_dialog(content)),
-                    Action(FIF.RIGHT_ARROW,'转到',triggered=lambda:parent.optionComboBox.setCurrentText(content))
+                    Action(FIF.DELETE,QCoreApplication.translate('Form','移除'),triggered=lambda:parent.remove_option_from_dialog(content)),
+                    Action(FIF.RIGHT_ARROW,QCoreApplication.translate('Form','转到'),triggered=lambda:parent.optionComboBox.setCurrentText(content))
         ])
 
 
@@ -784,9 +784,9 @@ class ConditionBox(QFrame):
             self.data = []
 
         for stat in Stats:
-            self.conditionStats.addItem(stat.text)
+            self.conditionStats.addItem(QCoreApplication.translate("Stats",stat.text))
         for comp in Comparison:
-            self.conditionCompare.addItem(comp.text)
+            self.conditionCompare.addItem(QCoreApplication.translate("Compare",comp.text))
         
 
         self.conditionStats.currentIndexChanged.connect(self.change_spinbox_range)
@@ -835,10 +835,10 @@ class ConditionBox(QFrame):
         content = str(data)
         cond_label = DropDownPushButton(self)
         cond_label.setFont(QFont("VonwaonBitmap 16px",10))
-        cond_label.setText(data.to_text()+' 且')
+        cond_label.setText(data.to_text()+' '+QCoreApplication.translate('Form','且'))
         cond_label.installEventFilter(ToolTipFilter(cond_label, showDelay=30, position=ToolTipPosition.TOP))
         cond_label.setMenu(RoundMenu())
-        cond_label.menu().addAction(Action(FIF.DELETE,'移除',triggered=lambda:self.remove_AND_condition(content)))
+        cond_label.menu().addAction(Action(FIF.DELETE,QCoreApplication.translate('Form','移除'),triggered=lambda:self.remove_AND_condition(content)))
         self.conditionForm.layout().removeWidget(self.groupBox)
         self.conditionForm.layout().addRow(cond_label)
         self.conditionForm.layout().addRow(self.groupBox)
@@ -904,7 +904,51 @@ class RangeSettingCard(SettingCard):
         self.valueLabel.setNum(value)
         self.valueLabel.adjustSize()
         self.slider.setValue(value)
+class ComboBoxSettingCard(SettingCard):
+    """ Setting card with a combo box """
 
+    def __init__(self,  icon: FIF, title, content=None, texts=None, parent=None):
+        """
+        Parameters
+        ----------
+        icon: str | QIcon | FluentIconBase
+            the icon to be drawn
+
+        title: str
+            the title of card
+
+        content: str
+            the content of card
+
+        texts: List[str]
+            the text of items
+
+        parent: QWidget
+            parent widget
+        """
+        super().__init__(icon, title, content, parent)
+        self.comboBox = ComboBox(self)
+        self.hBoxLayout.addWidget(self.comboBox, 0, Qt.AlignRight)
+        self.hBoxLayout.addSpacing(16)
+
+        # self.optionToText = {o: t for o, t in zip(configItem.options, texts)}
+        for text in texts:
+            self.comboBox.addItem(text)
+
+        # self.comboBox.setCurrentText(self.optionToText[qconfig.get(configItem)])
+        self.comboBox.currentIndexChanged.connect(self._onCurrentIndexChanged)
+        # configItem.valueChanged.connect(self.setValue)
+
+    def _onCurrentIndexChanged(self, index: int):
+        pass
+        # qconfig.set(self.configItem, self.comboBox.itemData(index))
+
+    def setValue(self, value):
+        if value not in self.optionToText:
+            return
+
+        self.comboBox.setCurrentText(self.optionToText[value])
+        # qconfig.set(self.configItem, value)
 
 
 class EditInterface(QFrame):
@@ -933,9 +977,9 @@ class EditInterface(QFrame):
         self.setStyleSheet("BodyLabel, ComboBox, QLineEdit { font-family: 'Consolas'; font-size: 12pt; }")
         self.menu = QHBoxLayout(self.groupBox)
         commandBar = CommandBar(self.groupBox)
-        self.save_action = Action(FIF.SAVE, '保存', triggered=parent.save_file,shortcut='Ctrl+S')
+        self.save_action = Action(FIF.SAVE, QCoreApplication.translate('Form','保存'), triggered=parent.save_file,shortcut='Ctrl+S')
         commandBar.addActions([
-            Action(FIF.FOLDER, '打开', triggered=parent.open_file,shortcut='Ctrl+O'),
+            Action(FIF.FOLDER, QCoreApplication.translate('Form','打开'), triggered=parent.open_file,shortcut='Ctrl+O'),
             self.save_action
             ])
         self.menu.addWidget(commandBar)
@@ -943,9 +987,9 @@ class EditInterface(QFrame):
 
         # 添加始终隐藏的动作
         commandBar.addHiddenActions([
-            Action(FIF.ADD, '新建', triggered=parent.create_new_file,shortcut='Ctrl+N'),
-            Action(FIF.SAVE_AS, '另存为', triggered=parent.save_file_as,shortcut='Ctrl+Shift+S'),
-            Action(FIF.COPY, '保存启动备份', triggered=parent.save_backup)
+            Action(FIF.ADD, QCoreApplication.translate('Form','新建'), triggered=parent.create_new_file,shortcut='Ctrl+N'),
+            Action(FIF.SAVE_AS, QCoreApplication.translate('Form','另存为'), triggered=parent.save_file_as,shortcut='Ctrl+Shift+S'),
+            Action(FIF.COPY, QCoreApplication.translate('Form','保存启动备份'), triggered=parent.save_backup)
             ])
 
 
@@ -982,10 +1026,10 @@ class EditInterface(QFrame):
     
     # region Save InfoBar
     def file_unsaved(self):
-        if self.has_same_infoBar('更'):
+        if self.has_same_infoBar(QCoreApplication.translate('Form','更改未保存')):
             return
         self.currentInfoBar = InfoBar.info(
-            title='更改未保存',
+            title=QCoreApplication.translate('Form','更改未保存'),
             content=self.file.path,
             orient=Qt.Horizontal,
             position=InfoBarPosition.TOP_RIGHT,
@@ -994,10 +1038,10 @@ class EditInterface(QFrame):
         )
         self.currentInfoBar.setFont(QFont("VonwaonBitmap 16px",12))
     def file_saved(self):
-        if self.has_same_infoBar('已'):
+        if self.has_same_infoBar(QCoreApplication.translate('Form','已是最新')):
             return
         self.currentInfoBar = InfoBar.success(
-            title='已是最新',
+            title=QCoreApplication.translate('Form','已是最新'),
             content=self.file.path,
             orient=Qt.Horizontal,
             position=InfoBarPosition.TOP_RIGHT,
@@ -1007,7 +1051,7 @@ class EditInterface(QFrame):
     def has_same_infoBar(self,key)->bool:
         if self.currentInfoBar:
             try:
-                if key in self.currentInfoBar.title:
+                if key == self.currentInfoBar.title:
                     return True
                 self.currentInfoBar.close()
             except RuntimeError:
@@ -1062,10 +1106,10 @@ class EditInterface(QFrame):
         
 
         if new_catalog_name =="":
-            ConfirmDialog(content="无法创建未命名的分类",title="Warning").exec_()
+            ConfirmDialog(content=QCoreApplication.translate('Form',"无法创建未命名的分类"),title="Warning").exec_()
             return
         elif new_catalog_name in self.selected_catalog.keys():
-            ConfirmDialog(content="已存在同名分类",title="Warning").exec_()
+            ConfirmDialog(content=QCoreApplication.translate('Form',"已存在同名分类"),title="Warning").exec_()
             return
         self.save_item_confirm()
 
@@ -1085,7 +1129,7 @@ class EditInterface(QFrame):
         self.file_unsaved()
     def remove_catalog(self):
         """移除当前显示中的分类"""
-        confirm = ConfirmDialog("","确认删除当前分类吗")
+        confirm = ConfirmDialog("",QCoreApplication.translate('Form',"确认删除当前分类吗"))
         if confirm.exec_() == QDialog.Accepted:
             self.file.data.pop(self.catalogComboBox.currentText())
             self.catalogComboBox.removeItem(self.catalogComboBox.currentIndex())
@@ -1170,10 +1214,10 @@ class EditInterface(QFrame):
 
         new_key = self.keyLineEdit.text()
         if new_key =="":
-                ConfirmDialog(content="无法创建未命名的键",title="Warning").exec_()
+                ConfirmDialog(content=QCoreApplication.translate('Form',"无法创建未命名的键"),title="Warning").exec_()
                 return
         elif new_key in self.selected_catalog.keys():
-            ConfirmDialog(content="已存在同名键",title="Warning").exec_()
+            ConfirmDialog(content=QCoreApplication.translate('Form',"已存在同名键"),title="Warning").exec_()
             return
         
         match action:
@@ -1195,7 +1239,7 @@ class EditInterface(QFrame):
         self.file_unsaved()     
     def remove_key(self,key):
         """移除选中的键值对"""
-        confirm = ConfirmDialog("","确认删除当前键吗")
+        confirm = ConfirmDialog("",QCoreApplication.translate('Form',"确认删除当前键吗"))
         if confirm.exec_() == QDialog.Accepted:
             self.input_fields.pop(key)
             self.create_input_form()
@@ -1215,7 +1259,7 @@ class EditInterface(QFrame):
         #     self.file.set_value(catalog_name,item_name,key,self.input_fields[key])
     def reset_item(self):
         """将对当前item的编辑重置为缓存状态"""
-        confirm = ConfirmDialog("","确认重置当前项吗")
+        confirm = ConfirmDialog("",QCoreApplication.translate('Form',"确认重置当前项吗"))
         if confirm.exec_() == QDialog.Accepted:
             self.change_item()
             self.item_unsaved = False
@@ -1226,10 +1270,10 @@ class EditInterface(QFrame):
         default = {}
 
         if new_item_name =="":
-            ConfirmDialog(content="无法创建未命名的键",title="Warning").exec_()
+            ConfirmDialog(content=QCoreApplication.translate('Form',"无法创建未命名的键"),title="Warning").exec_()
             return
         elif new_item_name in self.selected_catalog.keys():
-            ConfirmDialog(content="已存在同名键",title="Warning").exec_()
+            ConfirmDialog(content=QCoreApplication.translate('Form',"已存在同名键"),title="Warning").exec_()
             return
         self.save_item_confirm()
 
@@ -1263,7 +1307,7 @@ class EditInterface(QFrame):
         self.itemComboBox.setCurrentIndex(index)
     def remove_item(self):
         """移除当前活跃的item"""
-        confirm = ConfirmDialog("","确认删除当前项吗")
+        confirm = ConfirmDialog("",QCoreApplication.translate('Form',"确认删除当前项吗"))
         if confirm.exec_() == QDialog.Accepted:
             # item_to_remove = self.selected_catalog[self.itemComboBox.currentText()]
             self.selected_catalog.pop(self.itemComboBox.currentText())
@@ -1271,7 +1315,7 @@ class EditInterface(QFrame):
             self.file_unsaved()
     def save_item_confirm(self):
         if self.item_unsaved:
-            confirm = ConfirmDialog("","要保存当前项吗")
+            confirm = ConfirmDialog("",QCoreApplication.translate('Form',"要保存当前项吗"))
             if confirm.exec_() == QDialog.Accepted:
                 self.save_item()
     # endregion
@@ -1303,17 +1347,17 @@ class DialogInterface(QFrame):
         # command bar
         self.menu = self.menuBox.layout()
         commandBar = CommandBar(self.menuBox)
-        self.save_action = Action(FIF.SAVE, '保存', triggered=parent.save_file,shortcut='Ctrl+S')
+        self.save_action = Action(FIF.SAVE, QCoreApplication.translate('Form','保存'), triggered=parent.save_file,shortcut='Ctrl+S')
         commandBar.addActions([
-            Action(FIF.FOLDER, '打开', triggered=parent.open_file,shortcut='Ctrl+O'),
+            Action(FIF.FOLDER, QCoreApplication.translate('Form','打开'), triggered=parent.open_file,shortcut='Ctrl+O'),
             self.save_action
             ])
         self.menu.addWidget(commandBar)
 
         commandBar.addHiddenActions([
-            Action(FIF.ADD, '新建', triggered=parent.create_new_file,shortcut='Ctrl+N'),
-            Action(FIF.SAVE_AS, '另存为', triggered=parent.save_file_as,shortcut='Ctrl+Shift+S'),
-            Action(FIF.RETURN, '保存启动备份', triggered=parent.save_backup)
+            Action(FIF.ADD, QCoreApplication.translate('Form','新建'), triggered=parent.create_new_file,shortcut='Ctrl+N'),
+            Action(FIF.SAVE_AS, QCoreApplication.translate('Form','另存为'), triggered=parent.save_file_as,shortcut='Ctrl+Shift+S'),
+            Action(FIF.RETURN, QCoreApplication.translate('Form','保存启动备份'), triggered=parent.save_backup)
             ])
         
         
@@ -1362,7 +1406,7 @@ class DialogInterface(QFrame):
         self.characterName.line_edit.textUpdated.connect(self.__set_character_name)
 
         for align in OptionAlign:
-            self.AlignComboBox.addItem(align.title)
+            self.AlignComboBox.addItem(QCoreApplication.translate("Align",align.title))
             self.AlignComboBox.setItemData(self.AlignComboBox.count() - 1, QColor(align.color))
         self.AlignComboBox.setCurrentIndex(2)
         self.AlignComboBox.currentIndexChanged.connect(self.__set_align)
@@ -1418,10 +1462,10 @@ class DialogInterface(QFrame):
 
     # region Save InfoBar
     def __file_unsaved(self):
-        if self.__has_same_infoBar('更'):
+        if self.__has_same_infoBar(QCoreApplication.translate('Form','更改未保存')):
             return
         self.currentInfoBar = InfoBar.info(
-            title='更改未保存',
+            title=QCoreApplication.translate('Form','更改未保存'),
             content=self.file.path,
             orient=Qt.Horizontal,
             position=InfoBarPosition.TOP_RIGHT,
@@ -1430,10 +1474,10 @@ class DialogInterface(QFrame):
         )
         self.currentInfoBar.setFont(QFont("VonwaonBitmap 16px",12))
     def __file_saved(self):
-        if self.__has_same_infoBar('已'):
+        if self.__has_same_infoBar(QCoreApplication.translate('Form','已是最新')):
             return
         self.currentInfoBar = InfoBar.success(
-            title='已是最新',
+            title=QCoreApplication.translate('Form','已是最新'),
             content=self.file.path,
             orient=Qt.Horizontal,
             position=InfoBarPosition.TOP_RIGHT,
@@ -1444,7 +1488,7 @@ class DialogInterface(QFrame):
     def __has_same_infoBar(self,key)->bool:
         if self.currentInfoBar:
             try:
-                if key in self.currentInfoBar.title:
+                if key == self.currentInfoBar.title:
                     return True
                 self.currentInfoBar.close()
             except RuntimeError:
@@ -1646,7 +1690,7 @@ class DialogInterface(QFrame):
         self.dialogComboBox.setCurrentIndex(self.dialogSpinBox.value()-1)
     def __save_dialog_confirm(self):
         if self.dialog_unsaved:
-            confirm = ConfirmDialog("未保存","要保存当前对话吗")
+            confirm = ConfirmDialog(QCoreApplication.translate('Form',"未保存"),QCoreApplication.translate('Form',"要保存当前对话吗"))
             if confirm.exec_() == QDialog.Accepted:
                 self.save_dialog()
     # endregion
@@ -1770,7 +1814,7 @@ class DialogInterface(QFrame):
         self.__file_unsaved()
     def __save_option_confirm(self):
         if self.option_unsaved:
-            confirm = ConfirmDialog("未保存","要保存当前选项吗")
+            confirm = ConfirmDialog(QCoreApplication.translate('Form',"未保存"),QCoreApplication.translate('Form',"要保存当前选项吗"))
             if confirm.exec_() == QDialog.Accepted:
                 self.__save_option()
 
@@ -1793,8 +1837,8 @@ class DialogInterface(QFrame):
     def __initConditionButton(self):
         self.addConditionButton.setMenu(RoundMenu())
         self.addConditionButton.menu().addActions([
-            Action(FIF.ADD,'添加OR条件',self,triggered = self.__create_condition),
-            Action(FIF.CANCEL,'移除OR条件',self,triggered = self.__remove_condition)
+            Action(FIF.ADD,self.tr('添加OR条件'),self,triggered = self.__create_condition),
+            Action(FIF.CANCEL,self.tr('移除OR条件'),self,triggered = self.__remove_condition)
         ])
         self.conditions = []
     def __create_condition(self):
@@ -1854,13 +1898,13 @@ class DialogInterface(QFrame):
 
         if dialog['next'] == '-1':
             if dialog['options']:
-                self.continueButton.setText('选项')
+                self.continueButton.setText(self.tr('选项'))
                 for option in dialog['options']:
                     self.__set_options_menu(option)
             else:
                 self.__load_dialog_end()
         else:
-            self.continueButton.setText('继续')
+            self.continueButton.setText(self.tr('继续'))
             self.__set_continue_button(dialog['next'])
                              
     def __set_options_menu(self,option:str):
@@ -1894,7 +1938,7 @@ class DialogInterface(QFrame):
         text = options[option]['text']+f'({options[option]['tip']})'
         align = OptionAlign(options[option]['align'])
         text = tmp_to_html(text) + f' [<span style="color:{align.color}">{align.title}</span>]'
-        self.previous_text+= dialog_preview_text('选项',text,True)
+        self.previous_text+= dialog_preview_text(self.tr('选项'),text,True)
         self.previewBrowser.setHtml(self.previous_text)
         self.__scroll_to_bottom()
         self.__load_dialog(options[option]['next'])
@@ -1902,8 +1946,8 @@ class DialogInterface(QFrame):
         # 滚动到垂直滚动条的最大位置
         self.previewBrowser.verticalScrollBar().setValue(self.previewBrowser.verticalScrollBar().maximum())
     def __load_dialog_end(self):
-        self.continueButton.setText('结束对话')
-        self.previous_text+= dialog_preview_text('选项','<i>对话已结束</i>',True)
+        self.continueButton.setText(self.tr('结束对话'))
+        self.previous_text+= dialog_preview_text(self.tr('选项'),f'<i>{self.tr('对话已结束')}</i>',True)
         self.previewBrowser.setHtml(self.previous_text)
         self.__scroll_to_bottom()
         self.continueButton.menu().clear()
@@ -1927,21 +1971,33 @@ class SettingsInterface(ScrollArea):
         self.expandLayout = ExpandLayout(self.scrollWidget)
 
         self.saveGroup = SettingCardGroup(
-            '自动保存', self.scrollWidget)
+            self.tr('自动保存'), self.scrollWidget)
         self.autosaveCard = SwitchSettingCard(
             FIF.SYNC,
-            '自动保存',
-            '启用定时自动保存',
+            self.tr('自动保存'),
+            self.tr('启用定时自动保存'),
             None,
             self.saveGroup
         )
         
         self.timeCard = RangeSettingCard(
             FIF.STOP_WATCH,
-           '保存间隔',
-            '自动保存间隔（秒）',
+            self.tr('保存间隔'),
+            self.tr('自动保存间隔（秒）'),
             parent=self.saveGroup
         )
+        
+        self.languageGroup = SettingCardGroup(
+            self.tr('语言'), self.scrollWidget)
+
+        self.languageCard = ComboBoxSettingCard(
+            FIF.LANGUAGE,
+            self.tr('语言'),
+            self.tr('选择语言（需要重启应用）'),
+            texts=['简体中文', 'English'],
+            parent=self.languageGroup
+        )
+
         
         self.__initWidget()
         self.__connectSignals()
@@ -1969,10 +2025,13 @@ class SettingsInterface(ScrollArea):
         self.saveGroup.addSettingCard(self.autosaveCard)
         self.saveGroup.addSettingCard(self.timeCard)
 
+        self.languageGroup.addSettingCard(self.languageCard)
+
         # add setting card group to layout
         self.expandLayout.setSpacing(28)
         self.expandLayout.setContentsMargins(36, 10, 36, 0)
         self.expandLayout.addWidget(self.saveGroup)
+        self.expandLayout.addWidget(self.languageGroup)
 
     def __connectSignals(self):
         self.autosaveCard.setChecked(self.parent().settings.get_setting('auto save'))
@@ -1981,3 +2040,9 @@ class SettingsInterface(ScrollArea):
         self.timeCard.slider.setRange(30,300)
         self.timeCard.setValue(int(self.parent().auto_save_time/1000))
         self.timeCard.valueChanged.connect(self.parent().change_save_time)
+
+        index = 0
+        if self.parent().settings.get_setting('language') == 'en_US':
+            index = 1
+        self.languageCard.comboBox.setCurrentIndex(index)
+        self.languageCard.comboBox.currentIndexChanged.connect(self.parent().change_language)
