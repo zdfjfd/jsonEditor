@@ -1,6 +1,7 @@
 from enum import Enum
 from pathlib import Path
 import re
+import sys
 from PyQt5 import QtCore, uic
 from PyQt5.QtCore import QSize,Qt,pyqtSignal,QCoreApplication
 from PyQt5.QtWidgets import (QDialog,QGroupBox,QFrame,QVBoxLayout, QSizePolicy,QHBoxLayout,QWidget,
@@ -17,7 +18,7 @@ from qfluentwidgets import FluentIcon as FIF
 from jsonEditor import JSONHandler
 
 
-current_path = Path(__file__)
+current_path = Path(sys.argv[0]).resolve()
 parent_dir = str(current_path.parent.parent)
 placeholders = JSONHandler(str(current_path.parent)+'\\placeholders.json')
 

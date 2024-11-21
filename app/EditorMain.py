@@ -8,7 +8,7 @@ from pathlib import Path
 from EditorWidgets import EditInterface,DragDropWindow,DialogInterface, SettingsInterface
 from jsonEditor import JSONHandler,UserSettings
 
-current_path = Path(__file__)
+current_path = Path(sys.argv[0]).resolve()
 parent_dir = str(current_path.parent.parent)
 
 
@@ -251,7 +251,7 @@ if __name__ == '__main__':
 
     if not settings.get_setting('language'):
         if language != QLocale.Chinese:
-            if translator.load("app\\translations\en_US.qm"):
+            if translator.load(parent_dir+"/app/translations/en_US.qm"):
                 app.installTranslator(translator)
                 settings.set_setting('language','en_US')
             else:
@@ -259,7 +259,7 @@ if __name__ == '__main__':
         else:
             settings.set_setting('language','zh_CN')
     else:
-        if translator.load(f"app\\translations\{settings.get_setting('language')}.qm"):
+        if translator.load(parent_dir+f"/app/translations/{settings.get_setting('language')}.qm"):
             app.installTranslator(translator)
         else:
             print("翻译文件加载失败")
