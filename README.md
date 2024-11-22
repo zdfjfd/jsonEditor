@@ -30,8 +30,8 @@ catalog:{
 - 对话编辑器同时支持对话的预览，在预览器处可以预览整个对话和选项的流程。
 - 可以对加入的富文本标签进行预览，包括**加粗**，*斜体*，<u>下划线</u>，~~删除线~~和<span style="color: red;">文字颜色</span>，也可以手动输入还未支持的标签（[所有标签](https://docs.unity3d.com/Packages/com.unity.textmeshpro@4.0/manual/RichTextSupportedTags.html)），但是对于上述之外的标签，预览仅能显示HTML格式支持的标签。
 - 支持插入自定义占位符，需要在placeholders.json文件中的`names`中添加对应的键和值，其中键可以以`{keyName}`形式插入至文本中，在预览模式下显示为对应的值。推荐使用默认编辑器对placeholders.json进行编辑，编辑完成后需要重启应用以生效。
-- 支持自动保存，时间间隔在30秒至5分钟之间。
-- 支持中文和英文。
+- 支持自动保存，默认为关闭，需要在设置界面开启。可以设置时间间隔在30秒至5分钟之间。
+- 支持中文和英文，在设置界面切换后需要重启应用。
 
 ## 安装和运行
-从[`release`](https://github.com/zdfjfd/jsonEditor/releases/new)页面下载对应版本的`.zip`压缩文件。解压后运行目录下的`../app/EditorMain.exe`可执行文件，稍等几秒后就会弹出编辑器窗口（测试版会先弹出命令行窗口）。
+从[`release`](https://github.com/zdfjfd/jsonEditor/releases)页面下载对应版本的`.zip`压缩文件。解压后运行目录下的`../app/EditorMain.exe`可执行文件，稍等几秒后就会弹出编辑器窗口（测试版会先弹出命令行窗口）。
