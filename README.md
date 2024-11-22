@@ -1,5 +1,5 @@
 # **适用于Unity的游戏内文本和对话的json编辑器**
-**json Editor for in-game text and dialog with Unity Engine**
+
 
 用于编辑特定格式的游戏内文本/对话的编辑器，支持插入和预览部分TextMeshPro支持的Rich Text Tags
 
@@ -33,3 +33,5 @@ catalog:{
 - 支持自动保存，时间间隔在30秒至5分钟之间。
 - 支持中文和英文。
 
+## 安装和运行
+从[`release`](https://github.com/zdfjfd/jsonEditor/releases/new)页面下载对应版本的`.zip`压缩文件。解压后运行目录下的`../app/EditorMain.exe`可执行文件，稍等几秒后就会弹出编辑器窗口（测试版会先弹出命令行窗口）。
