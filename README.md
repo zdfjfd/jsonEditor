@@ -2,7 +2,7 @@
 
 
 用于编辑特定格式的游戏内文本/对话的编辑器，支持插入和预览部分TextMeshPro支持的Rich Text Tags
-![应用截图](screenshots\home_ch.png) 
+<img src="screenshots/home_ch.png" alt="Screenshot" width="500">
 ## 支持格式
 
 **默认编辑器** 
@@ -18,12 +18,16 @@ catalogName:
 }
 ```
 其中所有键和值均为`string`，即使原值不为字符串，在读取并保存后会被转换为字符串形式保存。嵌套深度不足的json文件会导致程序崩溃，且不适合使用本编辑器编辑。
-![应用截图](screenshots\default_ch.png) 
+
+
+<img src="screenshots/default_ch.png" alt="Screenshot" width="500">
 
 **对话编辑器** 
 
 对话编辑器支持的格式比较复杂，详见[`test_files/NewDialog.json`](https://github.com/zdfjfd/jsonEditor/blob/dev/test_files/NewDialogs.json)。建议直接从主页新建对话，或者读取已有的对话文件进行修改。
-![应用截图](screenshots\dialog_ch.png) 
+
+
+<img src="screenshots/dialog_ch.png" alt="Screenshot" width="500">
 
 ## 特性
 
