@@ -41,3 +41,5 @@ catalogName:
 
 ## 安装和运行
 从[`release`](https://github.com/zdfjfd/jsonEditor/releases)页面下载对应版本的`.zip`压缩文件。解压后运行目录下的`../app/EditorMain.exe`可执行文件，稍等几秒后就会弹出编辑器窗口（测试版会先弹出命令行窗口）。
+
+- 仅支持Windows系统

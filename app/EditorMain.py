@@ -1,9 +1,10 @@
-from PyQt5.QtGui import QFont,QFontDatabase
+from PyQt5.QtGui import QFont,QFontDatabase,QGuiApplication
 from PyQt5.QtCore import Qt,QTimer,QTranslator,QLocale
 from PyQt5.QtWidgets import QApplication, QFileDialog
 from qfluentwidgets import FluentWindow, setTheme,Theme,StateToolTip,InfoBar,InfoBarPosition,NavigationItemPosition
 from qfluentwidgets import FluentIcon as FIF
 import sys
+import ctypes
 from pathlib import Path
 from EditorWidgets import EditInterface,DragDropWindow,DialogInterface, SettingsInterface
 from jsonEditor import JSONHandler,UserSettings
@@ -18,7 +19,7 @@ class Window(FluentWindow):
     def __init__(self):
         super().__init__()
         setTheme(Theme.DARK)
-        self.resize(1200,1000)
+        self.resize(1000,1000)
 
         self.save_path = ""
         self.file = None
@@ -237,11 +238,26 @@ class Window(FluentWindow):
 
 
 if __name__ == '__main__':
-    QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
-    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
-    QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
+    
+
+    # 屏幕
+    user32 = ctypes.windll.user32
+    user32.SetProcessDPIAware()  
+    screen_width = user32.GetSystemMetrics(0)
+    screen_height = user32.GetSystemMetrics(1)
+    screen_dpi = user32.GetDpiForSystem()
+
+    scaling_factor = screen_dpi / 96.0  
+    print(f"屏幕分辨率: {screen_width}x{screen_height}, 缩放倍数: {scaling_factor}")
+    if screen_height > 1200:
+        print("启用高 DPI 缩放")
+        QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
+        QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
+        QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
 
     app = QApplication(sys.argv)
+
+    # 翻译
     translator = QTranslator()
 
     locale = QLocale.system()
@@ -264,9 +280,12 @@ if __name__ == '__main__':
         else:
             print("翻译文件加载失败")
 
+    # 字体
     font_db = QFontDatabase()
     font_id = font_db.addApplicationFont(parent_dir + "/fonts/VonwaonBitmap-16px.ttf")
     font_family = font_db.applicationFontFamilies(font_id)[0]
+
+    # 启动
     w = Window()
     w.show()
     app.exec()

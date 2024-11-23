@@ -1999,6 +1999,18 @@ class SettingsInterface(ScrollArea):
             parent=self.languageGroup
         )
 
+
+        # self.personalGroup = SettingCardGroup(
+        #     self.tr('个性化'), self.scrollWidget)
+
+        # self.autosaveCard = SwitchSettingCard(
+        #     FIF.FULL_SCREEN,
+        #     self.tr('大屏幕'),
+        #     self.tr('启用定时自动保存'),
+        #     None,
+        #     self.saveGroup
+        # )
+
         
         self.__initWidget()
         self.__connectSignals()
