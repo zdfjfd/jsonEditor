@@ -1,14 +1,15 @@
-from PyQt5.QtGui import QFont,QFontDatabase
-from PyQt5.QtCore import Qt,QTimer
+from PyQt5.QtGui import QFont,QFontDatabase,QGuiApplication
+from PyQt5.QtCore import Qt,QTimer,QTranslator,QLocale
 from PyQt5.QtWidgets import QApplication, QFileDialog
-from qfluentwidgets import FluentWindow, setTheme,Theme,StateToolTip,InfoBar,InfoBarPosition,NavigationItemPosition,SwitchButton
+from qfluentwidgets import FluentWindow, setTheme,Theme,StateToolTip,InfoBar,InfoBarPosition,NavigationItemPosition
 from qfluentwidgets import FluentIcon as FIF
 import sys
+import ctypes
 from pathlib import Path
 from EditorWidgets import EditInterface,DragDropWindow,DialogInterface, SettingsInterface
 from jsonEditor import JSONHandler,UserSettings
 
-current_path = Path(__file__)
+current_path = Path(sys.argv[0]).resolve()
 parent_dir = str(current_path.parent.parent)
 
 
@@ -18,7 +19,7 @@ class Window(FluentWindow):
     def __init__(self):
         super().__init__()
         setTheme(Theme.DARK)
-        self.resize(1200,1000)
+        self.resize(1000,1000)
 
         self.save_path = ""
         self.file = None
@@ -50,16 +51,15 @@ class Window(FluentWindow):
         self.timer.timeout.connect(self.auto_save)  
 
     def initNavigation(self):
-        self.addSubInterface(self.homeInterface, FIF.HOME, '主页')
+        self.addSubInterface(self.homeInterface, FIF.HOME, self.tr('主页'))
         self.navigationInterface.addSeparator()
-        self.addSubInterface(self.editInterface, FIF.EDIT, '默认编辑器')
-        self.addSubInterface(self.dialogInterface, FIF.MESSAGE, '对话编辑器',NavigationItemPosition.SCROLL)
-        self.addSubInterface(self.settingInterface, FIF.SETTING, '设置', NavigationItemPosition.BOTTOM)
+        self.addSubInterface(self.editInterface, FIF.EDIT, self.tr('默认编辑器'))
+        self.addSubInterface(self.dialogInterface, FIF.MESSAGE, self.tr('对话编辑器'),NavigationItemPosition.SCROLL)
+        self.addSubInterface(self.settingInterface, FIF.SETTING, self.tr('设置'), NavigationItemPosition.BOTTOM)
         self.interfaces = [self.homeInterface,self.editInterface,self.dialogInterface,self.settingInterface]
         
-
     def initWindow(self):
-        self.setWindowTitle("json编辑器")
+        self.setWindowTitle(self.tr("json编辑器"))
         self.resize(900, 700)
         # self.setWindowIcon(QIcon(':/qfluentwidgets/images/logo.png'))
         self.stateTooltip = None
@@ -82,7 +82,7 @@ class Window(FluentWindow):
         return
     def open_file(self):
         """从文件夹打开文件"""
-        file_path, _ = QFileDialog.getOpenFileName(self, "打开json文件", "", "json文件 (*.json)")
+        file_path, _ = QFileDialog.getOpenFileName(self, self.tr("打开json文件"), "", "json文件 (*.json)")
         if file_path:
             self.file = JSONHandler(path=file_path)
             self.save_path = file_path
@@ -107,7 +107,7 @@ class Window(FluentWindow):
         except AttributeError:
             pass
         if self.save_path == "":
-            file_path, _ = QFileDialog.getSaveFileName(self, "保存json文件", "", "json文件 (*.json)")
+            file_path, _ = QFileDialog.getSaveFileName(self, self.tr("保存json文件"), "", "json文件 (*.json)")
             if file_path:
                 self.file.save_json(path=file_path)
                 self.save_path = file_path
@@ -125,7 +125,7 @@ class Window(FluentWindow):
         if self.file == None:
             return
         self.save_progress()
-        file_path, _ = QFileDialog.getSaveFileName(self, "保存json文件", "", "json文件 (*.json)")
+        file_path, _ = QFileDialog.getSaveFileName(self, self.tr("保存json文件"), "", "json文件 (*.json)")
         if file_path:
             self.file.save_json(path=file_path)
             self.save_path = file_path
@@ -159,7 +159,7 @@ class Window(FluentWindow):
         """恢复打开时的备份"""
         if self.file == None:
             return
-        file_path, _ = QFileDialog.getSaveFileName(self, "保存json文件", "", "json文件 (*.json)")
+        file_path, _ = QFileDialog.getSaveFileName(self, self.tr("保存json文件"), "", "json文件 (*.json)")
         if file_path:
             if self.file.backup:
                 self.file.save_backup(path=file_path)
@@ -176,8 +176,8 @@ class Window(FluentWindow):
             self.save_file()
             return
         InfoBar.warning(
-            title='文件未保存',
-            content='请创建路径',
+            title=self.tr('文件未保存'),
+            content=self.tr('请创建路径'),
             orient=Qt.Horizontal,
             isClosable=True,
             position=InfoBarPosition.BOTTOM,
@@ -201,7 +201,7 @@ class Window(FluentWindow):
         # if self.stateTooltip:
         #     self.stateTooltip.setState(False)
         # else:
-        self.stateTooltip = StateToolTip('文件保存中', " ",self.active_interface)
+        self.stateTooltip = StateToolTip(self.tr('文件保存中'), " ",self.active_interface)
         self.stateTooltip.move(self.active_interface.width()-150, 0)
         self.stateTooltip.show()
     def hide_progress(self):
@@ -213,7 +213,7 @@ class Window(FluentWindow):
     def save_any_complete(self):
         InfoBar.success(
             title='',
-            content="已保存",
+            content=self.tr("已保存"),
             orient=Qt.Horizontal,
             isClosable=True,
             position=InfoBarPosition.TOP,
@@ -221,7 +221,7 @@ class Window(FluentWindow):
             parent=self
         )
     def save_complete(self):
-        self.stateTooltip.setContent('已保存')
+        self.stateTooltip.setContent(self.tr('已保存'))
         self.stateTooltip.setState(True)
         QTimer.singleShot(1000, self.hide_progress)
     # endregion
@@ -229,16 +229,63 @@ class Window(FluentWindow):
     def active_interface_change(self,index):
         """切换活跃界面"""
         self.active_interface = self.interfaces[index]
+    def change_language(self,language:int):
+        match language:
+            case 0:
+                self.settings.set_setting('language','zh_CN')
+            case _:
+                self.settings.set_setting('language','en_US')
+
 
 if __name__ == '__main__':
-    QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
-    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
-    QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
+    
+
+    # 屏幕
+    user32 = ctypes.windll.user32
+    user32.SetProcessDPIAware()  
+    screen_width = user32.GetSystemMetrics(0)
+    screen_height = user32.GetSystemMetrics(1)
+    screen_dpi = user32.GetDpiForSystem()
+
+    scaling_factor = screen_dpi / 96.0  
+    print(f"屏幕分辨率: {screen_width}x{screen_height}, 缩放倍数: {scaling_factor}")
+    if screen_height > 1200:
+        print("启用高 DPI 缩放")
+        QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
+        QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
+        QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
 
     app = QApplication(sys.argv)
+
+    # 翻译
+    translator = QTranslator()
+
+    locale = QLocale.system()
+    language = locale.language()
+    script = locale.script()
+    settings = UserSettings()
+
+    if not settings.get_setting('language'):
+        if language != QLocale.Chinese:
+            if translator.load(parent_dir+"/app/translations/en_US.qm"):
+                app.installTranslator(translator)
+                settings.set_setting('language','en_US')
+            else:
+                print("翻译文件加载失败")
+        else:
+            settings.set_setting('language','zh_CN')
+    else:
+        if translator.load(parent_dir+f"/app/translations/{settings.get_setting('language')}.qm"):
+            app.installTranslator(translator)
+        else:
+            print("翻译文件加载失败")
+
+    # 字体
     font_db = QFontDatabase()
     font_id = font_db.addApplicationFont(parent_dir + "/fonts/VonwaonBitmap-16px.ttf")
     font_family = font_db.applicationFontFamilies(font_id)[0]
+
+    # 启动
     w = Window()
     w.show()
     app.exec()

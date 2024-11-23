@@ -29,8 +29,8 @@ def convert_ui_to_py(ui_file, output_dir=None):
 
 # 示例用法
 if __name__ == "__main__":
-    ui_directory = "E:\项目\project Chess\jsonEditor"  # 指定 .ui 文件所在的目录
-    output_directory = "E:\项目\project Chess\jsonEditor"  # 指定 .py 文件的输出目录
+    ui_directory = r"E:\项目\project Chess\jsonEditor\UI"  # 指定 .ui 文件所在的目录
+    output_directory = r"E:\项目\project Chess\jsonEditor\UI"  # 指定 .py 文件的输出目录
 
     # 查找指定目录下的所有 .ui 文件并进行转换
     for filename in os.listdir(ui_directory):

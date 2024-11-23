@@ -66,6 +66,9 @@
         <property name="focusPolicy">
          <enum>Qt::StrongFocus</enum>
         </property>
+        <property name="locale">
+         <locale language="Chinese" country="China"/>
+        </property>
         <property name="text">
          <string>新建</string>
         </property>
@@ -90,6 +93,9 @@
           <family>微软雅黑</family>
           <pointsize>14</pointsize>
          </font>
+        </property>
+        <property name="locale">
+         <locale language="Chinese" country="China"/>
         </property>
         <property name="text">
          <string>打开</string>

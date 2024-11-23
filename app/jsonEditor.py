@@ -91,7 +91,7 @@ class UserSettings(JSONHandler):
     default_settings = {
             "settings":{
                 "theme": "light",
-                "language": "chs",
+                "language": "",
                 "notifications": True,
                 "auto save":False,
                 "auto save time":180000,
