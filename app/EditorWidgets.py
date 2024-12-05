@@ -343,7 +343,7 @@ class EditMenu:
         start = self.start
         self.setText(self.text()[:start] + wrapped_text + self.text()[start+len(self.selected):])
         self.setCursorPosition(start + len(wrapped_text))
-    
+
     def add_color_tag_to(self):
         colors = get_tag_color(self.selected)
         self.color = '#ffffff'
@@ -457,6 +457,7 @@ class EditorPlainTextEdit(PlainTextEdit, EditMenu):
     def hasSelectedText(self) -> bool:
         if self.selectedText():
             return True
+        return False
 
     def text(self) -> str:
         return self.toPlainText()
@@ -901,12 +902,16 @@ class ConditionBox(QFrame):
             self.data = []
 
         for stat in Stats:
-            self.conditionStats.addItem(QCoreApplication.translate("Stats",stat.text))
+            self.conditionStats.addItem(
+                QCoreApplication.translate("Stats", stat.text))
         for comp in Comparison:
-            self.conditionCompare.addItem(QCoreApplication.translate("Compare",comp.text))
+            self.conditionCompare.addItem(
+                QCoreApplication.translate("Compare", comp.text))
 
-        self.conditionStats.currentIndexChanged.connect(self.change_spinbox_range)
-        self.addCondition.clicked.connect(self.add_AND_condition)
+        self.conditionStats.currentIndexChanged.connect(
+            self.change_spinbox_range)
+        self.addCondition.clicked.connect(
+            self.add_AND_condition)
 
         if self.data:
             self.load_conditions()
@@ -1110,12 +1115,12 @@ class EditInterface(QFrame):
         self.save_action = Action(
             FIF.SAVE,
             QCoreApplication.translate('Form', '保存'),
-            triggered=parent.save_file,shortcut='Ctrl+S')
+            triggered=parent.save_file, shortcut='Ctrl+S')
         commandBar.addActions([
             Action(
                 FIF.FOLDER,
                 QCoreApplication.translate('Form', '打开'),
-                triggered=parent.open_file,shortcut='Ctrl+O'),
+                triggered=parent.open_file, shortcut='Ctrl+O'),
             self.save_action
             ])
         self.menu.addWidget(commandBar)
@@ -1123,9 +1128,9 @@ class EditInterface(QFrame):
         # 添加始终隐藏的动作
         commandBar.addHiddenActions([
             Action(FIF.ADD, QCoreApplication.translate('Form', '新建'),
-                   triggered=parent.create_new_file,shortcut='Ctrl+N'),
+                   triggered=parent.create_new_file, shortcut='Ctrl+N'),
             Action(FIF.SAVE_AS, QCoreApplication.translate('Form', '另存为'),
-                   triggered=parent.save_file_as,shortcut='Ctrl+Shift+S'),
+                   triggered=parent.save_file_as, shortcut='Ctrl+Shift+S'),
             Action(FIF.COPY, QCoreApplication.translate('Form', '保存启动备份'),
                    triggered=parent.save_backup)
             ])
@@ -1265,7 +1270,7 @@ class EditInterface(QFrame):
             case '当前模板':
                 # item_name = self.itemComboBox.currentText()
                 default = self.selected_catalog.copy()
-            case _ :
+            case _:
                 return
 
         self.file.set_catalog(new_catalog_name, default)
@@ -1451,7 +1456,7 @@ class EditInterface(QFrame):
                 item_name = self.itemComboBox.currentText()
                 for key in self.selected_catalog[item_name]:
                     default[key] = "none"
-            case _ :
+            case _:
                 return
 
         self.file_unsaved()
@@ -1495,7 +1500,7 @@ class EditInterface(QFrame):
 
 
 class DialogInterface(QFrame):
-    def __init__(self, text:str, parent: QWidget):
+    def __init__(self, text: str, parent: QWidget):
         super().__init__(parent=parent)
         uic.loadUi(parent_dir + "/UI/DialogInterface.ui", self)
         self.setObjectName(text.replace(' ', '-'))
@@ -1524,12 +1529,12 @@ class DialogInterface(QFrame):
         self.save_action = Action(
             FIF.SAVE,
             QCoreApplication.translate('Form', '保存'),
-            triggered=parent.save_file,shortcut='Ctrl+S')
+            triggered=parent.save_file, shortcut='Ctrl+S')
         commandBar.addActions([
             Action(
                 FIF.FOLDER,
                 QCoreApplication.translate('Form', '打开'),
-                triggered=parent.open_file,shortcut='Ctrl+O'),
+                triggered=parent.open_file, shortcut='Ctrl+O'),
             self.save_action
             ])
         self.menu.addWidget(commandBar)
@@ -1665,7 +1670,7 @@ class DialogInterface(QFrame):
         if self.__has_same_infoBar(QCoreApplication.translate('Form', '已是最新')):
             return
         self.currentInfoBar = InfoBar.success(
-            title=QCoreApplication.translate('Form','已是最新'),
+            title=QCoreApplication.translate('Form', '已是最新'),
             content=self.file.path,
             orient=Qt.Horizontal,
             position=InfoBarPosition.TOP_RIGHT,
@@ -1900,7 +1905,9 @@ class DialogInterface(QFrame):
 
     def __save_dialog_confirm(self):
         if self.dialog_unsaved:
-            confirm = ConfirmDialog(QCoreApplication.translate('Form',"未保存"),QCoreApplication.translate('Form',"要保存当前对话吗"))
+            confirm = ConfirmDialog(
+                QCoreApplication.translate('Form', "未保存"),
+                QCoreApplication.translate('Form', "要保存当前对话吗"))
             if confirm.exec_() == QDialog.Accepted:
                 self.save_dialog()
     # endregion
@@ -1934,7 +1941,7 @@ class DialogInterface(QFrame):
     def __save_option(self):
         print('选项已保存')
         id = self.optionIDLabel.text()
-        conds = self.option.get('conditions',[])
+        conds = self.option.get('conditions', [])
         conds.clear()
         for condition in self.conditions:
             if condition.data:
@@ -2117,9 +2124,6 @@ class DialogInterface(QFrame):
         self.__set_current_preview_index(int(id))
         self.continueButton.setMenu(RoundMenu())
 
-        # self.continueButton.menu().setToolTipsVisible(True)
-        # self.continueButton.menu().installEventFilter(
-        #     ToolTipFilter(self.continueButton.menu(), showDelay=30, position=ToolTipPosition.BOTTOM))
         self.previous_text += dialog_preview_text(
             tmp_to_html(dialog['character']),
             tmp_to_html(dialog['text']))

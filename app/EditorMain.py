@@ -46,13 +46,13 @@ class Window(FluentWindow):
         self.settingInterface = SettingsInterface('Setting Interface', self)
 
         self.homeInterface.fileDropped.connect(self.drop_file)
-            
+
         self.initNavigation()
         self.initWindow()
         self.stackedWidget.currentChanged.connect(self.active_interface_change)
         self.active_interface = self.homeInterface
         self.timer = QTimer(self)
-        self.timer.timeout.connect(self.auto_save)  
+        self.timer.timeout.connect(self.auto_save)
 
     def initNavigation(self):
         self.addSubInterface(self.homeInterface, FIF.HOME, self.tr('主页'))
@@ -93,17 +93,18 @@ class Window(FluentWindow):
         self.file = JSONHandler(path="NewJSON.json")
         self.load_file()
         return
-    
+
     def create_new_dialog(self):
         """新建新对话文件"""
         self.file = JSONHandler(path="NewDialog.json")
         self.file.data = self.settings.data.get('new dialog')
         self.load_file()
         return
-    
+
     def open_file(self):
         """从文件夹打开文件"""
-        file_path, _ = QFileDialog.getOpenFileName(self, self.tr("打开json文件"), "", "json文件 (*.json)")
+        file_path, _ = QFileDialog.getOpenFileName(
+            self, self.tr("打开json文件"), "", "json文件 (*.json)")
         if file_path:
             self.file = JSONHandler(path=file_path)
             self.save_path = file_path
@@ -130,7 +131,8 @@ class Window(FluentWindow):
         except AttributeError:
             pass
         if self.save_path == "":
-            file_path, _ = QFileDialog.getSaveFileName(self, self.tr("保存json文件"), "", "json文件 (*.json)")
+            file_path, _ = QFileDialog.getSaveFileName(
+                self, self.tr("保存json文件"), "", "json文件 (*.json)")
             if file_path:
                 self.file.save_json(path=file_path)
                 self.save_path = file_path
@@ -140,7 +142,7 @@ class Window(FluentWindow):
         self.homeInterface.initSubMenu()
         QTimer.singleShot(500, self.save_complete)
         if self.auto_save_enabled:
-            self.timer.start(self.auto_save_time)  
+            self.timer.start(self.auto_save_time)
         # asyncio.run(self.save_complete())
         # self.save_complete()
 
@@ -149,7 +151,8 @@ class Window(FluentWindow):
         if self.file is None:
             return
         self.save_progress()
-        file_path, _ = QFileDialog.getSaveFileName(self, self.tr("保存json文件"), "", "json文件 (*.json)")
+        file_path, _ = QFileDialog.getSaveFileName(
+            self, self.tr("保存json文件"), "", "json文件 (*.json)")
         if file_path:
             self.file.save_json(path=file_path)
             self.save_path = file_path
@@ -282,7 +285,7 @@ if __name__ == '__main__':
 
     # 屏幕
     user32 = ctypes.windll.user32
-    user32.SetProcessDPIAware()  
+    user32.SetProcessDPIAware()
     screen_width = user32.GetSystemMetrics(0)
     screen_height = user32.GetSystemMetrics(1)
     screen_dpi = user32.GetDpiForSystem()
@@ -316,8 +319,7 @@ if __name__ == '__main__':
         else:
             settings.set_setting('language', 'zh_CN')
     else:
-        if translator.load(parent_dir +
-                           f"/app/translations/{settings.get_setting('language')}.qm"):
+        if translator.load(parent_dir+f"/app/translations/{settings.get_setting('language')}.qm"):
             app.installTranslator(translator)
         else:
             print("翻译文件加载失败")
