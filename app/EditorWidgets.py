@@ -1,4 +1,5 @@
 from enum import Enum
+from operator import le
 from pathlib import Path
 import re
 import sys
@@ -9,6 +10,7 @@ from PyQt5.QtWidgets import (
     QStackedWidget, QApplication, QLabel
     )
 from PyQt5.QtGui import QFont, QColor, QPalette
+from numpy import tri
 from qfluentwidgets import (
     LineEdit, Dialog, BodyLabel, ToolButton, Action,
     CommandBar, LineEditButton, RoundMenu,
@@ -2169,7 +2171,7 @@ class DialogInterface(QFrame):
 
         data = self.file.data
         try:
-            dialog = data['dialog'][id]
+            dialog: dict = data['dialog'][id]
             self.continueButton.clicked.disconnect()
         except KeyError:
             return
@@ -2183,6 +2185,15 @@ class DialogInterface(QFrame):
             tmp_to_html(dialog['text']))
         self.previewBrowser.setHtml(self.previous_text)
         self.__scroll_to_bottom()
+
+        trigger = dialog.get('trigger', '')
+        if trigger:
+            triggers = self.file.data.get('trigger', {})
+            trigger_text = triggers.get(trigger, '')
+            if trigger_text:
+                self.previous_text += dialog_preview_text(
+                    self.tr('触发'), f'<i>{trigger_text}</i>', True)
+                self.previewBrowser.setHtml(self.previous_text)
 
         if dialog['next'] == '-1':
             if dialog['options']:
@@ -2199,10 +2210,14 @@ class DialogInterface(QFrame):
         options = self.file.data['option']
         tip = options[option]['tip']
         align = OptionAlign(options[option]['align'])
+        if options[option].get('legal', 0) == 0:
+            legal = ''
+        else:
+            legal = '/'+OptionLegality(options[option].get('legal', 0)).title
 
         conditions = options[option]['conditions']
         content = remove_all_tags(
-            options[option]['text']+f'({tip})'+f'[{align.title}]')
+            options[option]['text']+f'({tip})'+f'[{align.title}{legal}]')
         if conditions:
             submenu = RoundMenu(content)
             self.continueButton.menu().addMenu(submenu)
