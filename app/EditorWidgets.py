@@ -43,6 +43,27 @@ class Format(Enum):
         self.tag = tag
 
 
+class OptionLegality(Enum):
+    Legal = 0
+    Illegal = 1
+    Crime = 2
+    SeriousCrime = 3
+
+    def __init__(self, value):
+        self.color = {
+            0: "#29ff50",
+            1: "#b5bfff",
+            2: "#db5123",
+            3: "#FF0000"
+            }.get(value)
+        self.title = {
+            0: "合法",
+            1: "违法",
+            2: "犯罪",
+            3: "重罪"
+            }.get(value)
+
+
 class OptionAlign(Enum):
     Corrupt = -2
     Selfish = -1
@@ -1510,6 +1531,7 @@ class DialogInterface(QFrame):
         self.dialog: dict = None
         self.dialogID = '0'
         self.option: dict = None
+        self.triggers: dict = None
         self.dialog_unsaved = False
         self.option_unsaved = False
         self.currentInfoBar: InfoBar = None
@@ -1600,6 +1622,14 @@ class DialogInterface(QFrame):
         self.AlignComboBox.setCurrentIndex(2)
         self.AlignComboBox.currentIndexChanged.connect(self.__set_align)
 
+        for legal in OptionLegality:
+            self.LegalComboBox.addItem(
+                QCoreApplication.translate("Align", legal.title))
+            self.LegalComboBox.setItemData(
+                self.LegalComboBox.count() - 1, QColor(legal.color))
+        self.LegalComboBox.currentIndexChanged.connect(self.__set_legal)
+
+
         self.optionComboBox.currentIndexChanged.connect(
             self.__change_option_from_combobox)
 
@@ -1621,6 +1651,12 @@ class DialogInterface(QFrame):
 
         self.startBox.currentIndexChanged.connect(self.__jump_to_dialog)
 
+        self.triggerBox.currentIndexChanged.connect(self.__change_trigger)
+        self.removeTriggerButton.setIcon(FIF.DELETE)
+        self.removeTriggerButton.clicked.connect(self.__remove_trigger)
+        self.triggerEdit.toolButton.setIcon(FIF.ADD)
+        self.triggerEdit.clicked.connect(self.__add_trigger)
+
     def load_file(self):
         """加载文件到显示区"""
         data = self.file.data
@@ -1632,6 +1668,7 @@ class DialogInterface(QFrame):
         self.dialogSpinBox.setMaximum(len(data['dialog'])+1)
         self.dialog = data['dialog']['0'].copy()
         self.option = data['option']['0'].copy()
+        self.__load_triggers()
 
         self.__load_conditions()
 
@@ -1751,6 +1788,7 @@ class DialogInterface(QFrame):
         self.dialogSpinBox.setValue(int(id))
         self.dialogComboBox.setCurrentText(id)
         self.dialogID = id
+        self.triggerBox.setCurrentIndex(int(self.dialog.get('trigger', -1))+1)
         self.__connect_combobox(True)
         self.characterName.setText(self.dialog['character'])
         self.nextDialogBox.setValue(int(self.dialog['next']))
@@ -1758,6 +1796,10 @@ class DialogInterface(QFrame):
         self.__toggle_dialog_view()
         self.__toggle_dialog_view()
         self.__load_options()
+
+        trigger = self.file.data.get('trigger', {})
+        if trigger:
+            pass
         self.dialog_unsaved = False
         self.badge.hide()
 
@@ -1785,7 +1827,9 @@ class DialogInterface(QFrame):
             (self.dialogSpinBox.valueChanged.disconnect,
              self.__change_dialog_from_spinbox),
             (self.nextDialogBox.valueChanged.disconnect,
-             self.__set_next_dialog)
+             self.__set_next_dialog),
+            (self.triggerBox.currentIndexChanged.disconnect,
+             self.__change_trigger)
         ]
         for func, *args in commands:
             try:
@@ -1800,6 +1844,8 @@ class DialogInterface(QFrame):
                 self.__change_dialog_from_spinbox)
             self.nextDialogBox.valueChanged.connect(
                 self.__set_next_dialog)
+            self.triggerBox.currentIndexChanged.connect(
+                self.__change_trigger)
 
     def __add_option_to_dialog(self):
         option_str = str(self.allOptionsComboBox.currentText())
@@ -1932,6 +1978,7 @@ class DialogInterface(QFrame):
         self.optionLineEdit.setText(self.option['text'])
         self.optionCommentEdit.setText(self.option['comment'])
         self.AlignComboBox.setCurrentIndex(self.option['align']+2)
+        self.LegalComboBox.setCurrentIndex(self.option.get('legal', 0))
         self.tipLineEdit.setText(self.option['tip'])
         self.__load_conditions()
         self.__load_options()
@@ -1981,6 +2028,7 @@ class DialogInterface(QFrame):
                 "comment": "none",
                 "text": "",
                 "align": 0,
+                "legal": 0,
                 "tip": "",
                 "next": "-1",
                 "conditions": []
@@ -2036,6 +2084,12 @@ class DialogInterface(QFrame):
         self.AlignComboBox.setPalette(palette)
 
         self.option['align'] = index-2
+        self.badge_op.show()
+        self.option_unsaved = True
+        self.__file_unsaved()
+
+    def __set_legal(self, index: int):
+        self.option['legal'] = index
         self.badge_op.show()
         self.option_unsaved = True
         self.__file_unsaved()
@@ -2199,6 +2253,37 @@ class DialogInterface(QFrame):
         self.startBox.currentIndexChanged.disconnect(self.__jump_to_dialog)
         self.startBox.setCurrentIndex(index)
         self.startBox.currentIndexChanged.connect(self.__jump_to_dialog)
+    # endregion
+
+    # region Trigger
+    def __load_triggers(self):
+        self.triggerBox.clear()
+        self.triggerBox.addItem('无')
+        self.triggers = self.file.data.get('trigger', {})
+        # self.triggerBox = ComboBox()
+        if self.triggers:
+            for key, value in self.triggers.items():
+                self.triggerBox.addItem(key+':'+value)
+
+    def __add_trigger(self):
+        index = self.triggerIndexBox.value()
+        content = self.triggerEdit.text()
+        self.triggers[str(index)] = content
+        self.file.data['trigger'] = self.triggers
+        self.__load_triggers()
+
+    def __remove_trigger(self):
+        index = self.triggerIndexBox.value()
+        self.triggers.pop(str(index))
+        self.file.data['trigger'] = self.triggers
+        self.__load_triggers()
+
+    def __change_trigger(self, index: int):
+        if index == 0:
+            self.dialog.pop('trigger', None)
+            return
+        self.dialog['trigger'] = str(index-1)
+
     # endregion
 
 

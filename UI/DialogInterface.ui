@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1005</width>
+    <width>871</width>
     <height>702</height>
    </rect>
   </property>
@@ -464,7 +464,7 @@
               <x>0</x>
               <y>0</y>
               <width>284</width>
-              <height>156</height>
+              <height>95</height>
              </rect>
             </property>
             <property name="autoFillBackground">
@@ -499,6 +499,70 @@
              </item>
             </layout>
            </widget>
+          </widget>
+         </item>
+         <item>
+          <widget class="SubtitleLabel" name="label_7">
+           <property name="font">
+            <font>
+             <family>VonwaonBitmap 16px</family>
+            </font>
+           </property>
+           <property name="text">
+            <string>Trigger</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="ComboBox" name="triggerBox">
+           <property name="font">
+            <font>
+             <family>VonwaonBitmap 16px</family>
+            </font>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox_9">
+           <property name="title">
+            <string/>
+           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_6">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="SpinBox" name="triggerIndexBox"/>
+            </item>
+            <item>
+             <widget class="ButtonLineEdit" name="triggerEdit">
+              <property name="font">
+               <font>
+                <family>VonwaonBitmap 16px</family>
+               </font>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="TransparentToolButton" name="removeTriggerButton">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </widget>
          </item>
         </layout>
@@ -704,49 +768,54 @@
          <string/>
         </property>
         <layout class="QGridLayout" name="gridLayout_2">
-         <item row="0" column="2">
-          <widget class="TransparentToolButton" name="clearOptionButton">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>20</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>50</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <family>Consolas</family>
-             <pointsize>16</pointsize>
-             <weight>50</weight>
-             <bold>false</bold>
-            </font>
-           </property>
-           <property name="toolTip">
-            <string>删除当前项</string>
-           </property>
-           <property name="text">
+         <item row="0" column="1">
+          <widget class="QGroupBox" name="groupBox_5">
+           <property name="title">
             <string/>
            </property>
-           <property name="iconSize">
-            <size>
-             <width>16</width>
-             <height>16</height>
-            </size>
-           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="SubtitleLabel" name="label_6">
+              <property name="font">
+               <font>
+                <family>VonwaonBitmap 16px</family>
+                <pointsize>12</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>选项ID</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="SubtitleLabel" name="optionIDLabel">
+              <property name="font">
+               <font>
+                <family>Consolas</family>
+                <pointsize>12</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>TextLabel</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </widget>
          </item>
          <item row="2" column="1">
@@ -825,8 +894,8 @@
            </layout>
           </widget>
          </item>
-         <item row="1" column="2" colspan="4">
-          <widget class="StackedLineEdit" name="optionLineEdit">
+         <item row="2" column="2" colspan="4">
+          <widget class="StackedLineEdit" name="tipLineEdit">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
              <horstretch>1</horstretch>
@@ -841,31 +910,19 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="3">
-          <widget class="ComboBox" name="optionComboBox">
+         <item row="1" column="2" colspan="4">
+          <widget class="StackedLineEdit" name="optionLineEdit">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
              <horstretch>1</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-           <property name="minimumSize">
-            <size>
-             <width>150</width>
-             <height>50</height>
-            </size>
-           </property>
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>50</height>
+             <height>16777215</height>
             </size>
-           </property>
-           <property name="font">
-            <font>
-             <family>Consolas</family>
-             <pointsize>12</pointsize>
-            </font>
            </property>
           </widget>
          </item>
@@ -900,26 +957,31 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="2" colspan="4">
-          <widget class="StackedLineEdit" name="tipLineEdit">
+         <item row="2" column="6">
+          <widget class="ComboBox" name="LegalComboBox">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-             <horstretch>1</horstretch>
+             <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-           <property name="maximumSize">
+           <property name="minimumSize">
             <size>
-             <width>16777215</width>
-             <height>16777215</height>
+             <width>100</width>
+             <height>0</height>
             </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>12</pointsize>
+            </font>
            </property>
           </widget>
          </item>
-         <item row="0" column="5">
+         <item row="1" column="6">
           <widget class="ComboBox" name="AlignComboBox">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
              <horstretch>1</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -927,13 +989,13 @@
            <property name="minimumSize">
             <size>
              <width>100</width>
-             <height>50</height>
+             <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>50</height>
+             <height>16777215</height>
             </size>
            </property>
            <property name="font">
@@ -944,7 +1006,7 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="4">
+         <item row="0" column="6">
           <widget class="TransparentToolButton" name="createOptionButton">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -963,54 +1025,77 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="1">
-          <widget class="QGroupBox" name="groupBox_5">
-           <property name="title">
+         <item row="0" column="4">
+          <widget class="ComboBox" name="optionComboBox">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <horstretch>1</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>150</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>Consolas</family>
+             <pointsize>12</pointsize>
+            </font>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2" colspan="2">
+          <widget class="TransparentToolButton" name="clearOptionButton">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>20</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>50</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>Consolas</family>
+             <pointsize>16</pointsize>
+             <weight>50</weight>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="toolTip">
+            <string>删除当前项</string>
+           </property>
+           <property name="text">
             <string/>
            </property>
-           <layout class="QHBoxLayout" name="horizontalLayout">
-            <property name="spacing">
-             <number>0</number>
-            </property>
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="SubtitleLabel" name="label_6">
-              <property name="font">
-               <font>
-                <family>VonwaonBitmap 16px</family>
-                <pointsize>12</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>选项ID</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="SubtitleLabel" name="optionIDLabel">
-              <property name="font">
-               <font>
-                <family>Consolas</family>
-                <pointsize>12</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>TextLabel</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
+           <property name="iconSize">
+            <size>
+             <width>16</width>
+             <height>16</height>
+            </size>
+           </property>
           </widget>
          </item>
         </layout>
@@ -1044,7 +1129,7 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>468</width>
+              <width>384</width>
               <height>139</height>
              </rect>
             </property>
