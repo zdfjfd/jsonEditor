@@ -319,7 +319,10 @@ if __name__ == '__main__':
         else:
             settings.set_setting('language', 'zh_CN')
     else:
-        if translator.load(parent_dir+f"/app/translations/{settings.get_setting('language')}.qm"):
+        if translator.load(
+            parent_dir + f"/app/translations/"
+            f"{settings.get_setting('language')}.qm"
+        ):
             app.installTranslator(translator)
         else:
             print("翻译文件加载失败")

@@ -60,8 +60,8 @@ class OptionAlign(Enum):
         self.title = {
             -2: "堕落",
             -1: "自私",
-            0: "中立", 
-            1: "善良", 
+            0: "中立",
+            1: "善良",
             2: "高尚"}.get(value)
 
 
@@ -72,8 +72,8 @@ class Comparison(Enum):
 
     def __init__(self, value):
         self.text = {
-            0: '等于', 
-            1: '高于', 
+            0: '等于',
+            1: '高于',
             2: '低于'}.get(value)
 
 
@@ -196,10 +196,10 @@ def dialog_preview_text(
         name_align_right: bool = False):
     name_alignment = "right" if name_align_right else "left"
     return f"""
-        <div style="width: 100%; padding: 10px; border: 2px solid #333; 
-        border-radius: 8px; background-color: 
+        <div style="width: 100%; padding: 10px; border: 2px solid #333;
+        border-radius: 8px; background-color:
         #000000;text-align: {name_alignment};">
-            <div style="font-weight: bold; 
+            <div style="font-weight: bold;
             margin-bottom: 8px; font-size: 15pt; ">{name}</div>
             <div style="margin-top: 8px; line-height: 1.5;;font-size: 12pt">
                 {content}
@@ -412,7 +412,7 @@ class EditorLineEdit(LineEdit, EditMenu):
         default_menu._title = QCoreApplication.translate('menu', '编辑')
         default_menu.setIcon(FIF.PASTE)
         menu.addMenu(default_menu)
-        menu.addSeparator() 
+        menu.addSeparator()
         if self.hasSelectedText():
             self.selected = self.selectedText()
             self.start = self.selectionStart()
@@ -436,7 +436,7 @@ class EditorPlainTextEdit(PlainTextEdit, EditMenu):
         default_menu._title = QCoreApplication.translate('menu', '编辑')
         default_menu.setIcon(FIF.PASTE)
         menu.addMenu(default_menu)
-        menu.addSeparator() 
+        menu.addSeparator()
         if self.hasSelectedText():
             self.selected = self.selectedText()
             self.start = self.selectionStart()
@@ -925,7 +925,7 @@ class ConditionBox(QFrame):
 
     def load_conditions(self):
         self.conditionForm.layout().removeWidget(self.groupBox)
-        for i in reversed(range(self.conditionForm.layout().count())): 
+        for i in reversed(range(self.conditionForm.layout().count())):
             widget = self.conditionForm.layout().itemAt(i).widget()
             if widget:
                 widget.deleteLater()
@@ -1157,7 +1157,7 @@ class EditInterface(QFrame):
         self.removeItemButton.setIcon(FIF.DELETE.icon())
 
         self.removeCatalogButton.clicked.connect(self.remove_catalog)
-        self.removeCatalogButton.setIcon(FIF.DELETE.icon()) 
+        self.removeCatalogButton.setIcon(FIF.DELETE.icon())
 
         self.scrollArea.enableTransparentBackground()
         self.save_action.triggered.connect(self.change_item)
@@ -1308,7 +1308,7 @@ class EditInterface(QFrame):
 
     def create_input_form(self):
         """创建输入区域"""
-        for i in reversed(range(self.editFormLayout.layout().count())): 
+        for i in reversed(range(self.editFormLayout.layout().count())):
             widget = self.editFormLayout.layout().itemAt(i).widget()
             if widget is not None:
                 widget.deleteLater()
@@ -1329,7 +1329,7 @@ class EditInterface(QFrame):
                 hline = QFrame(self)
                 hline.setFrameShape(QFrame.HLine)
                 hline.setFrameShadow(QFrame.Sunken)
-            
+
                 # 将标签和输入框添加到布局中
                 self.editFormLayout.layout().addRow(row.container,
                                                     row.container_form)
@@ -1398,7 +1398,7 @@ class EditInterface(QFrame):
                 return
 
         self.create_input_form()
-        self.file_unsaved()     
+        self.file_unsaved()
 
     def remove_key(self, key):
         """移除选中的键值对"""
@@ -1867,7 +1867,7 @@ class DialogInterface(QFrame):
         self.optionForm.layout().removeWidget(self.addOptionButton)
         self.optionForm.layout().removeWidget(self.allOptionsComboBox)
 
-        for i in reversed(range(self.optionForm.layout().count())): 
+        for i in reversed(range(self.optionForm.layout().count())):
             widget = self.optionForm.layout().itemAt(i).widget()
             if widget:
                 widget.deleteLater()
@@ -1951,7 +1951,7 @@ class DialogInterface(QFrame):
         self.optionComboBox.setItemText(int(id), id+','+self.option['comment'])
         self.allOptionsComboBox.setItemText(int(id),
                                             id+','+self.option['comment'])
-        self.__jump_to_dialog(self.startBox.currentIndex())    
+        self.__jump_to_dialog(self.startBox.currentIndex())
         self.badge_op.hide()
         self.option_unsaved = False
 
@@ -2050,7 +2050,7 @@ class DialogInterface(QFrame):
 
     def __load_conditions(self):
         self.conditionForm.layout().removeWidget(self.addConditionButton)
-        for i in reversed(range(self.conditionForm.layout().count())): 
+        for i in reversed(range(self.conditionForm.layout().count())):
             widget = self.conditionForm.layout().itemAt(i).widget()
             if widget:
                 widget.deleteLater()
